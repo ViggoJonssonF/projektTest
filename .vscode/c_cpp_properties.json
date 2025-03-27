@@ -3,6 +3,7 @@
     {
       "name": "windows-gcc-x64",
       "includePath": [
+        "C:/msys64/mingw64/include/SDL2",
         "${workspaceFolder}/**"
       ],
       "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
