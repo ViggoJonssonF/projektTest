@@ -5,7 +5,7 @@ CC=gcc
 INCLUDE = C:\msys64\mingw64\include\SDL2
 
 CFLAGS = -g -I$(INCLUDE) -c 
-LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2 -mwindows -lm
+LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2 -mwindows -lm -lSDL2_mixer
 
 # Målet länkar ihop både main.o och engine.o
 simpleSDLexample2: main.o engine.o
