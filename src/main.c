@@ -9,59 +9,56 @@
 #include "engine.h"
 
 int main(int argc, char **argv) {
-    // Definiera banpunkter för ballonger
+    // Definiera banpunkter för fiender
     static SDL_Point pathPointsLeft[] = {
         { 500,   0 },
-        { 500,  60 },
-        { 180,  60 },
-        { 180, 170 },
-        { 280, 170 },
-        { 820, 170 },
-        { 820, 290 },
-        { 600, 290 },
-        { 600, 570 },
-        { 760, 570 },
-        { 760, 870 },
-        { 140, 870 },
-        { 140, 620 },
-        { 440, 620 },
-        { 440, 900 }
+        { 500,  90 },
+        { 180,  90 },
+        { 180, 200 },
+        { 280, 200 },
+        { 820, 200 },
+        { 820, 350 },
+        { 600, 350 },
+        { 600, 610 },
+        { 760, 610 },
+        { 760, 900 },
+        { 140, 900 },
+        { 140, 650 },
+        { 440, 650 },
+        { 440, 1000 }
     };
     
     static SDL_Point pathPointsRight[] = {
         { 1420, 0 },
-        { 1420, 60 },
-        { 1740, 60 },
-        { 1740, 170 },
-        { 1640, 170 },
-        { 1100, 170 },
-        { 1100, 290 },
-        { 1320, 290 },
-        { 1320, 570 },
-        { 1160, 570 },
-        { 1160, 870 },
-        { 1780, 870 },
-        { 1780, 620 },
-        { 1480, 620 },
-        { 1480, 900 }
+        { 1420, 90 },
+        { 1740, 90 },
+        { 1740, 200 },
+        { 1640, 200 },
+        { 1100, 200 },
+        { 1100, 350 },
+        { 1320, 350 },
+        { 1320, 610 },
+        { 1160, 610 },
+        { 1160, 900 },
+        { 1780, 900 },
+        { 1780, 650 },
+        { 1480, 650 },
+        { 1480, 1000 }
     };
     
     static int numPoints = sizeof(pathPointsLeft) / sizeof(pathPointsLeft[0]);
     SDL_Window  *window = NULL;
     SDL_Renderer *renderer = NULL;
     
-    // Initiera SDL, skapa fönster och renderer
     if (!initSDL(&window, &renderer, WINDOW_WIDTH, WINDOW_HEIGHT)) {
         return 1;
     }
     
-    // Initiera ljud
     if (!initAudio()) {
         cleanup(window, renderer, NULL);
         return 1;
     }
     
-    // Initiera TTF
     if (TTF_Init() == -1) {
         printf("TTF_Init Error: %s\n", TTF_GetError());
         cleanup(window, renderer, NULL);
@@ -75,8 +72,8 @@ int main(int argc, char **argv) {
         cleanup(window, renderer, NULL);
         return 1;
     }
+    Mix_Music *bgm = Mix_LoadMUS("resources/gamesound.mp3");
     
-    // Ladda resurser (texturer)
     SDL_Texture *mapTexture = loadImage(renderer, "resources/map.png");
     if (!mapTexture) {
         TTF_CloseFont(font);
@@ -104,21 +101,20 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    // Hämta birdIcon storlek och centrera den i fönstret
     SDL_Rect iconRect;
     SDL_QueryTexture(birdIcon, NULL, NULL, &iconRect.w, &iconRect.h);
     iconRect.x = WINDOW_WIDTH / 2 - iconRect.w / 2;
     iconRect.y = WINDOW_HEIGHT / 2 - iconRect.h / 2;
     
-    // Ladda ballong-texturer (tre typer)
-    SDL_Texture *balloonTextures[3];
-    balloonTextures[0] = loadImage(renderer, "resources/redbloon.png");
-    balloonTextures[1] = loadImage(renderer, "resources/bluebloon.png");
-    balloonTextures[2] = loadImage(renderer, "resources/yellowbloon.png");
+    // Ladda fiende-texturer (tre typer)
+    SDL_Texture *enemyTextures[3];
+    enemyTextures[0] = loadImage(renderer, "resources/redbloon.png");
+    enemyTextures[1] = loadImage(renderer, "resources/bluebloon.png");
+    enemyTextures[2] = loadImage(renderer, "resources/yellowbloon.png");
     for (int i = 0; i < 3; i++) {
-        if (!balloonTextures[i]) {
+        if (!enemyTextures[i]) {
             for (int j = 0; j < i; j++) {
-                SDL_DestroyTexture(balloonTextures[j]);
+                SDL_DestroyTexture(enemyTextures[j]);
             }
             SDL_DestroyTexture(mapTexture);
             SDL_DestroyTexture(birdTexture);
@@ -136,7 +132,7 @@ int main(int argc, char **argv) {
         SDL_DestroyTexture(birdTexture);
         SDL_DestroyTexture(birdIcon);
         for (int i = 0; i < 3; i++) {
-            SDL_DestroyTexture(balloonTextures[i]);
+            SDL_DestroyTexture(enemyTextures[i]);
         }
         TTF_CloseFont(font);
         TTF_Quit();
@@ -144,10 +140,8 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    // Kartans rektangel (hela fönstret)
     SDL_Rect mapRect = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
     
-    // Initiera global superbird-mall (template)
     Bird superbird;
     superbird.damage = 1;
     superbird.range = 400.0f;
@@ -158,137 +152,162 @@ int main(int argc, char **argv) {
     superbird.cost = 200;
     superbird.projectileTexture = dartTexture;
     
-    // Spel-ekonomi
     int money = 500;
     float moneyTimer = 0.0f;
     
-    // Hämta basstorlek för ballonger (utgå från redbloon-textur)
-    SDL_Rect baseBalloonRect;
-    SDL_QueryTexture(balloonTextures[0], NULL, NULL, &baseBalloonRect.w, &baseBalloonRect.h);
-    baseBalloonRect.w /= 5.2;
-    baseBalloonRect.h /= 5.2;
+    SDL_Rect baseEnemyRect;
+    SDL_QueryTexture(enemyTextures[0], NULL, NULL, &baseEnemyRect.w, &baseEnemyRect.h);
+    baseEnemyRect.w /= 5.2;
+    baseEnemyRect.h /= 5.2;
     
-    // Initiera arrays för ballonger, projektiler och placerade fåglar
-    Balloon balloons[MAX_BALLOONS];
-    int numBalloonsActive = 0;
+    Enemy enemies[MAX_ENEMIES];
+    int numEnemiesActive = 0;
     Projectile projectiles[MAX_PROJECTILES];
     int numProjectiles = 0;
     Bird placedBirds[MAX_PLACED_BIRDS];
     int numPlacedBirds = 0;
     bool placingBird = false;
     
-    // Array för fågelrotationer
     float birdRotations[MAX_PLACED_BIRDS] = {0};
     
-    // Tidsvariabler
+    int leftPlayerHP = 10;
+    int rightPlayerHP = 10;
+    
     Uint32 lastTime = SDL_GetTicks();
     float spawnTimer = 0.0f;
-    int balloonSpawnCounter = 0;
+    int enemySpawnCounter = 0;
     
     bool quit = false;
     while (!quit) {
-        // Hantera inmatning via vår input-modul
         handleInput(&quit, &placingBird, iconRect, &money, &numPlacedBirds, superbird, placedBirds);
         
-        // Beräkna delta-tid
         Uint32 currentTime = SDL_GetTicks();
         float dt = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
         
-        // Uppdatera pengar: var 10:e sekund, lägg till 150 dollar
         moneyTimer += dt;
         if (moneyTimer >= 10.0f) {
             moneyTimer -= 10.0f;
             money += 150;
         }
         
-        // Spawna ballonger: två stycken (en per bana) var 5:e sekund
         spawnTimer += dt;
         if (spawnTimer >= 5.0f) {
             spawnTimer -= 5.0f;
-            if (numBalloonsActive <= MAX_BALLOONS - 2) {
-                int type = balloonSpawnCounter % 3; // 0 = röd, 1 = blå, 2 = gul
-                balloonSpawnCounter++;
+            if (numEnemiesActive <= MAX_ENEMIES - 2) {
+                int type = enemySpawnCounter % 3; // 0 = röd, 1 = blå, 2 = gul
+                enemySpawnCounter++;
                 
-                // Vänster ballong
-                Balloon leftBalloon;
-                leftBalloon.side = 0;
-                leftBalloon.speed = 300.0f;
-                leftBalloon.currentSegment = 0;
-                leftBalloon.segmentProgress = 0.0f;
-                leftBalloon.active = true;
-                leftBalloon.x = (float)pathPointsLeft[0].x;
-                leftBalloon.y = (float)pathPointsLeft[0].y;
-                leftBalloon.type = type;
+                // Vänster fiende
+                Enemy leftEnemy;
+                leftEnemy.side = 0;
+                leftEnemy.speed = 300.0f;
+                leftEnemy.currentSegment = 0;
+                leftEnemy.segmentProgress = 0.0f;
+                leftEnemy.active = true;
+                leftEnemy.x = (float)pathPointsLeft[0].x;
+                leftEnemy.y = (float)pathPointsLeft[0].y;
+                leftEnemy.type = type;
                 if (type == 0) {
-                    leftBalloon.hp = 1;
-                    leftBalloon.texture = balloonTextures[0];
+                    leftEnemy.hp = 1;
+                    leftEnemy.texture = enemyTextures[0];
                 } else if (type == 1) {
-                    leftBalloon.hp = 3;
-                    leftBalloon.texture = balloonTextures[1];
+                    leftEnemy.hp = 3;
+                    leftEnemy.texture = enemyTextures[1];
                 } else {
-                    leftBalloon.hp = 5;
-                    leftBalloon.texture = balloonTextures[2];
+                    leftEnemy.hp = 5;
+                    leftEnemy.texture = enemyTextures[2];
                 }
-                balloons[numBalloonsActive++] = leftBalloon;
+                enemies[numEnemiesActive++] = leftEnemy;
                 
-                // Höger ballong
-                Balloon rightBalloon;
-                rightBalloon.side = 1;
-                rightBalloon.speed = 300.0f;
-                rightBalloon.currentSegment = 0;
-                rightBalloon.segmentProgress = 0.0f;
-                rightBalloon.active = true;
-                rightBalloon.x = (float)pathPointsRight[0].x;
-                rightBalloon.y = (float)pathPointsRight[0].y;
-                rightBalloon.type = type;
+                // Höger fiende
+                Enemy rightEnemy;
+                rightEnemy.side = 1;
+                rightEnemy.speed = 300.0f;
+                rightEnemy.currentSegment = 0;
+                rightEnemy.segmentProgress = 0.0f;
+                rightEnemy.active = true;
+                rightEnemy.x = (float)pathPointsRight[0].x;
+                rightEnemy.y = (float)pathPointsRight[0].y;
+                rightEnemy.type = type;
                 if (type == 0) {
-                    rightBalloon.hp = 1;
-                    rightBalloon.texture = balloonTextures[0];
+                    rightEnemy.hp = 1;
+                    rightEnemy.texture = enemyTextures[0];
                 } else if (type == 1) {
-                    rightBalloon.hp = 3;
-                    rightBalloon.texture = balloonTextures[1];
+                    rightEnemy.hp = 3;
+                    rightEnemy.texture = enemyTextures[1];
                 } else {
-                    rightBalloon.hp = 5;
-                    rightBalloon.texture = balloonTextures[2];
+                    rightEnemy.hp = 5;
+                    rightEnemy.texture = enemyTextures[2];
                 }
-                balloons[numBalloonsActive++] = rightBalloon;
+                enemies[numEnemiesActive++] = rightEnemy;
             }
         }
         
-        // Uppdatera spel-logiken via våra game_logic-funktioner
-        updateBalloons(balloons, &numBalloonsActive, dt, pathPointsLeft, pathPointsRight, numPoints, balloonTextures);
+        updateEnemies(enemies, &numEnemiesActive, dt, pathPointsLeft, pathPointsRight, numPoints, enemyTextures, &leftPlayerHP, &rightPlayerHP);
         updateProjectiles(projectiles, &numProjectiles, dt);
-        updateBirds(placedBirds, numPlacedBirds, balloons, numBalloonsActive, projectiles, &numProjectiles, dt, dartTexture, balloonTextures);
-        calculateBirdRotations(placedBirds, numPlacedBirds, balloons, numBalloonsActive, birdRotations);
+        updateBirds(placedBirds, numPlacedBirds, enemies, numEnemiesActive, projectiles, &numProjectiles, dt, dartTexture, enemyTextures);
+        calculateBirdRotations(placedBirds, numPlacedBirds, enemies, numEnemiesActive, birdRotations);
         
-        // Rendera allt med hjälp av render-funktionerna
         SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
         SDL_RenderClear(renderer);
         
         renderMap(renderer, mapTexture, mapRect);
-        renderBalloons(renderer, balloons, numBalloonsActive, baseBalloonRect);
+        renderEnemies(renderer, enemies, numEnemiesActive, baseEnemyRect);
         renderProjectiles(renderer, projectiles, numProjectiles);
         renderBirds(renderer, placedBirds, numPlacedBirds, birdTexture, birdRotations);
-        renderUI(renderer, font, money, WINDOW_WIDTH);
+        renderUI(renderer, font, money, leftPlayerHP, rightPlayerHP, WINDOW_WIDTH);
         
-        // Rita birdIcon (för placeringsläge)
         SDL_RenderCopy(renderer, birdIcon, NULL, &iconRect);
+        
+        bool gameOver = false;
+        char gameOverText[64];
+        if (leftPlayerHP <= 0) {
+            gameOver = true;
+            sprintf(gameOverText, "Player 1 loses!");
+        } else if (rightPlayerHP <= 0) {
+            gameOver = true;
+            sprintf(gameOverText, "Player 2 loses!");
+        }
+        
+        if (gameOver) {
+            SDL_Color red = {255, 0, 0, 255};
+            SDL_Surface *gameOverSurface = TTF_RenderText_Solid(font, gameOverText, red);
+            if (gameOverSurface) {
+                SDL_Texture *gameOverTexture = SDL_CreateTextureFromSurface(renderer, gameOverSurface);
+                SDL_FreeSurface(gameOverSurface);
+                if (gameOverTexture) {
+                    int tw, th;
+                    TTF_SizeText(font, gameOverText, &tw, &th);
+                    SDL_Rect gameOverRect = { WINDOW_WIDTH / 2 - tw / 2, WINDOW_HEIGHT / 2 - th / 2 - 30, tw, th };
+                    SDL_Rect bgRect = { gameOverRect.x - 10, gameOverRect.y - 10, gameOverRect.w + 20, gameOverRect.h + 20 };
+                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                    SDL_RenderFillRect(renderer, &bgRect);
+                    SDL_RenderCopy(renderer, gameOverTexture, NULL, &gameOverRect);
+                    SDL_DestroyTexture(gameOverTexture);
+                }
+            }
+            SDL_RenderPresent(renderer);
+            SDL_Delay(3000);
+            break;
+        }
+        
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
     
-    // Städning av resurser
     SDL_DestroyTexture(mapTexture);
     SDL_DestroyTexture(birdTexture);
     SDL_DestroyTexture(birdIcon);
     for (int i = 0; i < 3; i++) {
-        SDL_DestroyTexture(balloonTextures[i]);
+        SDL_DestroyTexture(enemyTextures[i]);
     }
     SDL_DestroyTexture(dartTexture);
     TTF_CloseFont(font);
     TTF_Quit();
     cleanupAudio();
+    Mix_FreeMusic(bgm);
+    bgm = NULL;
     cleanup(window, renderer, NULL);
     
     return 0;

@@ -7,14 +7,15 @@ void renderMap(SDL_Renderer *renderer, SDL_Texture *mapTexture, SDL_Rect mapRect
     SDL_RenderCopy(renderer, mapTexture, NULL, &mapRect);
 }
 
-void renderBalloons(SDL_Renderer *renderer, Balloon balloons[], int numBalloonsActive, SDL_Rect baseBalloonRect) {
-    for (int i = 0; i < numBalloonsActive; i++) {
-        SDL_Rect bRect;
-        bRect.w = baseBalloonRect.w;
-        bRect.h = baseBalloonRect.h;
-        bRect.x = (int)(balloons[i].x - bRect.w / 2);
-        bRect.y = (int)(balloons[i].y - bRect.h / 2);
-        SDL_RenderCopy(renderer, balloons[i].texture, NULL, &bRect);
+void renderEnemies(SDL_Renderer *renderer, Enemy enemies[], int numEnemiesActive, SDL_Rect baseEnemyRect) {
+    for (int i = 0; i < numEnemiesActive; i++) {
+        SDL_Rect eRect;
+        eRect.w = baseEnemyRect.w;
+        eRect.h = baseEnemyRect.h;
+        eRect.x = (int)(enemies[i].x - eRect.w / 2);
+        eRect.y = (int)(enemies[i].y - eRect.h / 2);
+        SDL_Point pivot = { eRect.w / 2, eRect.h / 2 };
+        SDL_RenderCopyEx(renderer, enemies[i].texture, NULL, &eRect, enemies[i].angle, &pivot, SDL_FLIP_NONE);
     }
 }
 
@@ -42,7 +43,7 @@ void renderBirds(SDL_Renderer *renderer, Bird placedBirds[], int numPlacedBirds,
     }
 }
 
-void renderUI(SDL_Renderer *renderer, TTF_Font *font, int money, int windowWidth) {
+void renderUI(SDL_Renderer *renderer, TTF_Font *font, int money, int leftPlayerHP, int rightPlayerHP, int windowWidth) {
     char moneyText[64];
     sprintf(moneyText, "Money: $%d", money);
     SDL_Color white = {255, 255, 255, 255};
@@ -59,4 +60,23 @@ void renderUI(SDL_Renderer *renderer, TTF_Font *font, int money, int windowWidth
             SDL_DestroyTexture(textTexture);
         }
     }
+    
+    // Rendera HP-barer med max hp = 10
+    SDL_Rect leftBarOutline = {50, 10, 200, 20};
+    float leftFillWidth = 200 * (leftPlayerHP / 10.0f);
+    SDL_Rect leftBarFill = {50, 10, (int)leftFillWidth, 20};
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderDrawRect(renderer, &leftBarOutline);
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_RenderFillRect(renderer, &leftBarFill);
+    
+    SDL_Rect rightBarOutline = {windowWidth - 250, 10, 200, 20};
+    float rightFillWidth = 200 * (rightPlayerHP / 10.0f);
+    SDL_Rect rightBarFill = {windowWidth - 250, 10, (int)rightFillWidth, 20};
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderDrawRect(renderer, &rightBarOutline);
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_RenderFillRect(renderer, &rightBarFill);
+    
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 }

@@ -1,3 +1,6 @@
+#ifndef ENGINE_H
+#define ENGINE_H
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -20,14 +23,15 @@ typedef struct {
 typedef struct {
     int hp;
     float speed;
-    float x, y;
-    int currentSegment;
-    float segmentProgress;
-    SDL_Texture *texture;
-    int type;
+    float x, y;            // Aktuella koordinater
+    int currentSegment;    // Index för nuvarande segment
+    float segmentProgress; // 0.0 - 1.0
+    SDL_Texture *texture;  // Textur (t.ex. för fienderna)
+    int type;              // 0 = röd, 1 = blå, 2 = gul (eller dina nya typer)
     bool active;
-    int side;
-} Balloon;
+    int side;              // 0 = vänster, 1 = höger
+    float angle;           // Rotation (så att "botten" pekar framåt)
+} Enemy;
 
 typedef struct {
     float x, y;
@@ -36,7 +40,7 @@ typedef struct {
     SDL_Texture *texture;
     bool active;
     float angle;
-    // Nya fält för att spara start och målposition
+    // Fält för att spara start- och målposition
     float startX;
     float startY;
 } Projectile;
@@ -60,18 +64,22 @@ void handleInput(bool *quit, bool *placingBird, SDL_Rect iconRect, int *money, i
 // -------------------------
 // Deklarationer för uppdateringsfunktioner (game logic)
 // -------------------------
-void updateBalloons(Balloon balloons[], int *numBalloonsActive, float dt, SDL_Point pathLeft[], SDL_Point pathRight[], int numPoints, SDL_Texture *balloonTextures[]);
+void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, 
+    SDL_Point pathLeft[], SDL_Point pathRight[], int numPoints, 
+    SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP);
 void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt);
-void updateBirds(Bird placedBirds[], int numPlacedBirds, Balloon balloons[], int numBalloonsActive, 
+void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, 
                  Projectile projectiles[], int *numProjectiles, float dt, 
-                 SDL_Texture *dartTexture, SDL_Texture *balloonTextures[]);
-void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Balloon balloons[], int numBalloonsActive, float birdRotations[]);
+                 SDL_Texture *dartTexture, SDL_Texture *enemyTextures[]);
+void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, float birdRotations[]);
 
 // -------------------------
 // Deklarationer för renderingsfunktioner
 // -------------------------
 void renderMap(SDL_Renderer *renderer, SDL_Texture *mapTexture, SDL_Rect mapRect);
-void renderBalloons(SDL_Renderer *renderer, Balloon balloons[], int numBalloonsActive, SDL_Rect baseBalloonRect);
+void renderEnemies(SDL_Renderer *renderer, Enemy enemies[], int numEnemiesActive, SDL_Rect baseEnemyRect);
 void renderProjectiles(SDL_Renderer *renderer, Projectile projectiles[], int numProjectiles);
 void renderBirds(SDL_Renderer *renderer, Bird placedBirds[], int numPlacedBirds, SDL_Texture *birdTexture, float birdRotations[]);
-void renderUI(SDL_Renderer *renderer, TTF_Font *font, int money, int windowWidth);
+void renderUI(SDL_Renderer *renderer, TTF_Font *font, int money, int leftPlayerHP, int rightPlayerHP, int windowWidth);
+
+#endif

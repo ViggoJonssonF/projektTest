@@ -3,16 +3,27 @@
 #include "defs.h"
 
 // Globalt ljudobjekt
-Mix_Music *popSound = NULL;
+Mix_Chunk *popSound = NULL;
+Mix_Music *bgm = NULL;
 
 bool initAudio() {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
         return false;
     }
-    popSound = Mix_LoadMUS("resources/pop.mp3");
+    // Ladda bakgrundsmusik (gamesound.mp3)
+    bgm = Mix_LoadMUS("resources/gamesound.mp3");
+    if (!bgm) {
+        printf("Failed to load background music: %s\n", Mix_GetError());
+        return false;
+    }
+    // Sätt volym till 50% (max 128) och spela musik i en oändlig loop
+    Mix_VolumeMusic(64);
+    Mix_PlayMusic(bgm, -1);
+
+    popSound = Mix_LoadWAV("resources/pop.wav");
     if (!popSound) {
-        printf("Failed to load pop sound! SDL_mixer Error: %s\n", Mix_GetError());
+        printf("Failed to load pop sound: %s\n", Mix_GetError());
         return false;
     }
     return true;
@@ -20,14 +31,18 @@ bool initAudio() {
 
 void playPopSound() {
     if (popSound) {
-        Mix_PlayMusic(popSound, 1);
+        Mix_PlayChannel(-1, popSound, 0);
     }
 }
 
 void cleanupAudio() {
     if (popSound) {
-        Mix_FreeMusic(popSound);
+        Mix_FreeChunk(popSound);
         popSound = NULL;
+    }
+    if (bgm) {
+        Mix_FreeMusic(bgm);
+        bgm = NULL;
     }
     Mix_CloseAudio();
 }

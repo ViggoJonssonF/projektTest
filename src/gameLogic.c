@@ -14,40 +14,58 @@ static float lerp(float a, float b, float t) {
     return a + (b - a) * t;
 }
 
-void updateBalloons(Balloon balloons[], int *numBalloonsActive, float dt, SDL_Point pathLeft[], SDL_Point pathRight[], int numPoints, SDL_Texture *balloonTextures[]) {
-    for (int i = 0; i < *numBalloonsActive; i++) {
-        if (!balloons[i].active) continue;
-        SDL_Point *path = (balloons[i].side == 0) ? pathLeft : pathRight;
+void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, 
+    SDL_Point pathLeft[], SDL_Point pathRight[], int numPoints, 
+    SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP) {
+    for (int i = 0; i < *numEnemiesActive; i++) {
+        if (!enemies[i].active)
+            continue;
+        SDL_Point *path = (enemies[i].side == 0) ? pathLeft : pathRight;
         int pathCount = numPoints;
-        if (pathCount > 1 && balloons[i].currentSegment < pathCount - 1) {
-            float segDist = distanceBetween(path[balloons[i].currentSegment].x, path[balloons[i].currentSegment].y,
-                                             path[balloons[i].currentSegment + 1].x, path[balloons[i].currentSegment + 1].y);
-            float moveAmount = (balloons[i].speed * dt) / segDist;
-            balloons[i].segmentProgress += moveAmount;
-            while (balloons[i].segmentProgress >= 1.0f && balloons[i].currentSegment < pathCount - 2) {
-                balloons[i].segmentProgress -= 1.0f;
-                balloons[i].currentSegment++;
-                segDist = distanceBetween(path[balloons[i].currentSegment].x, path[balloons[i].currentSegment].y,
-                                          path[balloons[i].currentSegment + 1].x, path[balloons[i].currentSegment + 1].y);
+        if (pathCount > 1 && enemies[i].currentSegment < pathCount - 1) {
+            float segDist = distanceBetween(
+                path[enemies[i].currentSegment].x, path[enemies[i].currentSegment].y,
+                path[enemies[i].currentSegment + 1].x, path[enemies[i].currentSegment + 1].y);
+            float moveAmount = (enemies[i].speed * dt) / segDist;
+            enemies[i].segmentProgress += moveAmount;
+            while (enemies[i].segmentProgress >= 1.0f && enemies[i].currentSegment < pathCount - 2) {
+                enemies[i].segmentProgress -= 1.0f;
+                enemies[i].currentSegment++;
+                segDist = distanceBetween(
+                    path[enemies[i].currentSegment].x, path[enemies[i].currentSegment].y,
+                    path[enemies[i].currentSegment + 1].x, path[enemies[i].currentSegment + 1].y);
             }
-            float x1 = (float)path[balloons[i].currentSegment].x;
-            float y1 = (float)path[balloons[i].currentSegment].y;
-            float x2 = (float)path[balloons[i].currentSegment + 1].x;
-            float y2 = (float)path[balloons[i].currentSegment + 1].y;
-            balloons[i].x = lerp(x1, x2, balloons[i].segmentProgress);
-            balloons[i].y = lerp(y1, y2, balloons[i].segmentProgress);
-            if (balloons[i].currentSegment >= pathCount - 1) {
-                balloons[i].active = false;
+            float x1 = (float)path[enemies[i].currentSegment].x;
+            float y1 = (float)path[enemies[i].currentSegment].y;
+            float x2 = (float)path[enemies[i].currentSegment + 1].x;
+            float y2 = (float)path[enemies[i].currentSegment + 1].y;
+            enemies[i].x = lerp(x1, x2, enemies[i].segmentProgress);
+            enemies[i].y = lerp(y1, y2, enemies[i].segmentProgress);
+            // Beräkna basvinkeln så att "botten" av bilden pekar framåt (nedåt)
+            float baseAngle = atan2f(y2 - y1, x2 - x1) * 180.0f / M_PI - 90.0f;
+            enemies[i].angle = baseAngle; 
+            
+            // Om vi är i sista segmentet med full progress räknas fienden som nått slutet
+            if ((enemies[i].currentSegment == pathCount - 2 && enemies[i].segmentProgress >= 1.0f) ||
+                (enemies[i].currentSegment >= pathCount - 1)) {
+                // Fiender på vänster sida drar HP från vänster spelare,
+                // fiender på högersidan drar HP från höger spelare.
+                if (enemies[i].side == 0) {
+                    *leftPlayerHP -= enemies[i].hp;
+                } else {
+                    *rightPlayerHP -= enemies[i].hp;
+                }
+                enemies[i].active = false;
             }
         }
     }
-    // Ta bort inaktiva ballonger
-    for (int i = 0; i < *numBalloonsActive;) {
-        if (!balloons[i].active) {
-            for (int j = i; j < *numBalloonsActive - 1; j++) {
-                balloons[j] = balloons[j + 1];
+    // Ta bort inaktiva fiender
+    for (int i = 0; i < *numEnemiesActive;) {
+        if (!enemies[i].active) {
+            for (int j = i; j < *numEnemiesActive - 1; j++) {
+                enemies[j] = enemies[j + 1];
             }
-            (*numBalloonsActive)--;
+            (*numEnemiesActive)--;
         } else {
             i++;
         }
@@ -60,7 +78,6 @@ void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt) 
         projectiles[i].x += projectiles[i].vx * PROJECTILE_SPEED * dt;
         projectiles[i].y += projectiles[i].vy * PROJECTILE_SPEED * dt;
         
-        // Nu enbart kontroll om dart går utanför skärmen
         if (projectiles[i].x < 0 || projectiles[i].x > WINDOW_WIDTH ||
             projectiles[i].y < 0 || projectiles[i].y > WINDOW_HEIGHT) {
             projectiles[i].active = false;
@@ -78,39 +95,33 @@ void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt) 
     }
 }
 
-void updateBirds(Bird placedBirds[], int numPlacedBirds, Balloon balloons[], int numBalloonsActive, 
+void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, 
     Projectile projectiles[], int *numProjectiles, float dt, 
-    SDL_Texture *dartTexture, SDL_Texture *balloonTextures[]) {
+    SDL_Texture *dartTexture, SDL_Texture *enemyTextures[]) {
     
     for (int i = 0; i < numPlacedBirds; i++) {
         placedBirds[i].attackTimer += dt;
-        Balloon *target = NULL;
+        Enemy *target = NULL;
         float bestProgress = -1.0f;
         
-        // Bestäm vilket lag fågeln tillhör:
-        // Om x < 960 betraktas fågeln som vänsterlag.
-        // Om x > 960 betraktas fågeln som högerlag.
         bool birdIsLeft = (placedBirds[i].x < 960);
         bool birdIsRight = (placedBirds[i].x > 960);
         
-        // Loopa över alla ballonger
-        for (int j = 0; j < numBalloonsActive; j++) {
-            // Om fågeln är vänsterlag: ignorera ballonger med x > 1050.
-            if (birdIsLeft && (balloons[j].x > 1050))
+        for (int j = 0; j < numEnemiesActive; j++) {
+            if (birdIsLeft && (enemies[j].x > 1050))
                 continue;
-            // Om fågeln är högerlag: ignorera ballonger med x < 870.
-            if (birdIsRight && (balloons[j].x < 870))
+            if (birdIsRight && (enemies[j].x < 870))
                 continue;
             
-            float dx = balloons[j].x - placedBirds[i].x;
-            float dy = balloons[j].y - placedBirds[i].y;
+            float dx = enemies[j].x - placedBirds[i].x;
+            float dy = enemies[j].y - placedBirds[i].y;
             float dist = sqrtf(dx * dx + dy * dy);
             
             if (dist <= placedBirds[i].range) {
-                float progress = balloons[j].currentSegment + balloons[j].segmentProgress;
+                float progress = enemies[j].currentSegment + enemies[j].segmentProgress;
                 if (progress > bestProgress) {
                     bestProgress = progress;
-                    target = &balloons[j];
+                    target = &enemies[j];
                 }
             }
         }
@@ -151,53 +162,44 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Balloon balloons[], int
                 if (target->type == 2 && target->hp <= 3) {
                     target->type = 1;
                     target->hp = 3;
-                    target->texture = balloonTextures[1];
+                    target->texture = enemyTextures[1];
                 } else if (target->type == 1 && target->hp <= 1) {
                     target->type = 0;
                     target->hp = 1;
-                    target->texture = balloonTextures[0];
+                    target->texture = enemyTextures[0];
                 }
             }
         }
     }
 }
 
-
-
-
-
-
-
-void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Balloon balloons[], int numBalloonsActive, float birdRotations[]) {
+void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, float birdRotations[]) {
     for (int i = 0; i < numPlacedBirds; i++) {
-        Balloon *target = NULL;
+        Enemy *target = NULL;
         float bestProgress = -1.0f;
         
-        // Bestäm vilket lag fågeln tillhör:
         bool birdIsLeft = (placedBirds[i].x <= 870);
         bool birdIsRight = (placedBirds[i].x >= 1050);
         
-        // Om fågeln inte är på någon av sidorna, sätt rotationen till 0.
         if (!birdIsLeft && !birdIsRight) {
             birdRotations[i] = 0.0f;
             continue;
         }
         
-        for (int j = 0; j < numBalloonsActive; j++) {
-            // Filtrera ballonger utifrån fågelns lag.
-            if (birdIsLeft && (balloons[j].x > 870))
+        for (int j = 0; j < numEnemiesActive; j++) {
+            if (birdIsLeft && (enemies[j].x > 870))
                 continue;
-            if (birdIsRight && (balloons[j].x < 1050))
+            if (birdIsRight && (enemies[j].x < 1050))
                 continue;
             
-            float dx = balloons[j].x - placedBirds[i].x;
-            float dy = balloons[j].y - placedBirds[i].y;
+            float dx = enemies[j].x - placedBirds[i].x;
+            float dy = enemies[j].y - placedBirds[i].y;
             float dist = sqrtf(dx * dx + dy * dy);
             if (dist <= placedBirds[i].range) {
-                float progress = balloons[j].currentSegment + balloons[j].segmentProgress;
+                float progress = enemies[j].currentSegment + enemies[j].segmentProgress;
                 if (progress > bestProgress) {
                     bestProgress = progress;
-                    target = &balloons[j];
+                    target = &enemies[j];
                 }
             }
         }
