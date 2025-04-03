@@ -11,40 +11,41 @@
 int main(int argc, char **argv) {
     // Definiera banpunkter för fiender
     static SDL_Point pathPointsLeft[] = {
-        { 500,   0 },
-        { 500,  90 },
-        { 180,  90 },
-        { 180, 200 },
-        { 280, 200 },
-        { 820, 200 },
-        { 820, 350 },
-        { 600, 350 },
-        { 600, 610 },
-        { 760, 610 },
-        { 760, 900 },
-        { 140, 900 },
-        { 140, 650 },
-        { 440, 650 },
-        { 440, 1000 }
+        { (int)(WINDOW_WIDTH / 3.84),        0 },
+        { (int)(WINDOW_WIDTH / 3.84),        (int)(WINDOW_HEIGHT * 0.09) },
+        { (int)(WINDOW_WIDTH / 10.67),       (int)(WINDOW_HEIGHT * 0.09) },
+        { (int)(WINDOW_WIDTH / 10.67),       (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 6.857),       (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 2.341),       (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 2.341),       (int)(WINDOW_HEIGHT * 0.35) },
+        { (int)(WINDOW_WIDTH / 3.2),         (int)(WINDOW_HEIGHT * 0.35) },
+        { (int)(WINDOW_WIDTH / 3.2),         (int)(WINDOW_HEIGHT * 0.61) },
+        { (int)(WINDOW_WIDTH / 2.526),       (int)(WINDOW_HEIGHT * 0.61) },
+        { (int)(WINDOW_WIDTH / 2.526),       (int)(WINDOW_HEIGHT * 0.90) },
+        { (int)(WINDOW_WIDTH / 13.714),      (int)(WINDOW_HEIGHT * 0.90) },
+        { (int)(WINDOW_WIDTH / 13.714),      (int)(WINDOW_HEIGHT * 0.65) },
+        { (int)(WINDOW_WIDTH / 4.364),       (int)(WINDOW_HEIGHT * 0.65) },
+        { (int)(WINDOW_WIDTH / 4.364),       WINDOW_HEIGHT }  // WINDOW_HEIGHT*1.0
     };
     
     static SDL_Point pathPointsRight[] = {
-        { 1420, 0 },
-        { 1420, 90 },
-        { 1740, 90 },
-        { 1740, 200 },
-        { 1640, 200 },
-        { 1100, 200 },
-        { 1100, 350 },
-        { 1320, 350 },
-        { 1320, 610 },
-        { 1160, 610 },
-        { 1160, 900 },
-        { 1780, 900 },
-        { 1780, 650 },
-        { 1480, 650 },
-        { 1480, 1000 }
+        { (int)(WINDOW_WIDTH / 1.352),       0 },
+        { (int)(WINDOW_WIDTH / 1.352),       (int)(WINDOW_HEIGHT * 0.09) },
+        { (int)(WINDOW_WIDTH / 1.103),       (int)(WINDOW_HEIGHT * 0.09) },
+        { (int)(WINDOW_WIDTH / 1.103),       (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 1.170),       (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 1.745),       (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 1.745),       (int)(WINDOW_HEIGHT * 0.35) },
+        { (int)(WINDOW_WIDTH / 1.455),       (int)(WINDOW_HEIGHT * 0.35) },
+        { (int)(WINDOW_WIDTH / 1.455),       (int)(WINDOW_HEIGHT * 0.61) },
+        { (int)(WINDOW_WIDTH / 1.655),       (int)(WINDOW_HEIGHT * 0.61) },
+        { (int)(WINDOW_WIDTH / 1.655),       (int)(WINDOW_HEIGHT * 0.90) },
+        { (int)(WINDOW_WIDTH / 1.078),       (int)(WINDOW_HEIGHT * 0.90) },
+        { (int)(WINDOW_WIDTH / 1.078),       (int)(WINDOW_HEIGHT * 0.65) },
+        { (int)(WINDOW_WIDTH / 1.297),       (int)(WINDOW_HEIGHT * 0.65) },
+        { (int)(WINDOW_WIDTH / 1.297),       WINDOW_HEIGHT }
     };
+    
     
     static int numPoints = sizeof(pathPointsLeft) / sizeof(pathPointsLeft[0]);
     SDL_Window  *window = NULL;
@@ -144,7 +145,7 @@ int main(int argc, char **argv) {
     
     Bird superbird;
     superbird.damage = 1;
-    superbird.range = 400.0f;
+    superbird.range = WINDOW_WIDTH*0.2; //drygt 400 px vid 1920 i bredd
     superbird.attackSpeed = 0.7f;
     superbird.x = WINDOW_WIDTH / 2.0f;
     superbird.y = WINDOW_HEIGHT / 2.0f;

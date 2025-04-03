@@ -59,7 +59,7 @@ void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt,
             }
         }
     }
-    // Ta bort inaktiva fiender
+
     for (int i = 0; i < *numEnemiesActive;) {
         if (!enemies[i].active) {
             for (int j = i; j < *numEnemiesActive - 1; j++) {
@@ -104,13 +104,13 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
         Enemy *target = NULL;
         float bestProgress = -1.0f;
         
-        bool birdIsLeft = (placedBirds[i].x < 960);
-        bool birdIsRight = (placedBirds[i].x > 960);
+        bool birdIsLeft = (placedBirds[i].x < WINDOW_WIDTH/2);
+        bool birdIsRight = (placedBirds[i].x > WINDOW_WIDTH/2);
         
         for (int j = 0; j < numEnemiesActive; j++) {
-            if (birdIsLeft && (enemies[j].x > 1050))
+            if (birdIsLeft && (enemies[j].x > WINDOW_WIDTH*0.546875))
                 continue;
-            if (birdIsRight && (enemies[j].x < 870))
+            if (birdIsRight && (enemies[j].x < WINDOW_WIDTH*0.453125))
                 continue;
             
             float dx = enemies[j].x - placedBirds[i].x;
@@ -178,8 +178,8 @@ void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Enemy enemie
         Enemy *target = NULL;
         float bestProgress = -1.0f;
         
-        bool birdIsLeft = (placedBirds[i].x <= 870);
-        bool birdIsRight = (placedBirds[i].x >= 1050);
+        bool birdIsLeft = (placedBirds[i].x <= WINDOW_WIDTH*0.453125);
+        bool birdIsRight = (placedBirds[i].x >= WINDOW_WIDTH*0.546875);
         
         if (!birdIsLeft && !birdIsRight) {
             birdRotations[i] = 0.0f;
@@ -187,9 +187,9 @@ void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Enemy enemie
         }
         
         for (int j = 0; j < numEnemiesActive; j++) {
-            if (birdIsLeft && (enemies[j].x > 870))
+            if (birdIsLeft && (enemies[j].x > WINDOW_WIDTH*0.453125))
                 continue;
-            if (birdIsRight && (enemies[j].x < 1050))
+            if (birdIsRight && (enemies[j].x < WINDOW_WIDTH*0.546875))
                 continue;
             
             float dx = enemies[j].x - placedBirds[i].x;

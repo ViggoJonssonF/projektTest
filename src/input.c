@@ -4,6 +4,9 @@
 
 void handleInput(bool *quit, bool *placingBird, SDL_Rect iconRect, int *money, int *numPlacedBirds, Bird superbird, Bird placedBirds[]) {
     SDL_Event event;
+    // Beräkna relativa gränser (ungefär 45,3% och 54,7% av WINDOW_WIDTH)
+    int leftBoundary = (int)(WINDOW_WIDTH * 0.453125);
+    int rightBoundary = (int)(WINDOW_WIDTH * 0.546875);
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             *quit = true;
@@ -17,13 +20,11 @@ void handleInput(bool *quit, bool *placingBird, SDL_Rect iconRect, int *money, i
                     *placingBird = true;
                 }
             } else {
-                // Förhindra placering om x är mellan 870 och 1050
-                if (mx >= 870 && mx <= 1050) {
-                    // Du kan välja att visa ett meddelande eller bara ignorera placeringen.
+                // Om musen är inom de relativa gränserna – förhindra placering
+                if (mx >= leftBoundary && mx <= rightBoundary) {
                     *placingBird = false;
                     return;
                 }
-                
                 // Placera en ny fågel om spelaren har råd
                 if (*money >= superbird.cost && *numPlacedBirds < MAX_PLACED_BIRDS) {
                     Bird newBird = superbird;
@@ -38,4 +39,3 @@ void handleInput(bool *quit, bool *placingBird, SDL_Rect iconRect, int *money, i
         }
     }
 }
-

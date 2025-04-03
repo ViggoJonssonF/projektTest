@@ -34,8 +34,8 @@ void renderBirds(SDL_Renderer *renderer, Bird placedBirds[], int numPlacedBirds,
     for (int i = 0; i < numPlacedBirds; i++) {
         SDL_Rect br;
         SDL_QueryTexture(birdTexture, NULL, NULL, &br.w, &br.h);
-        br.w /= 2;
-        br.h /= 2;
+        br.w /= (WINDOW_WIDTH*0.001042);
+        br.h /= (WINDOW_HEIGHT*0.002);
         br.x = (int)(placedBirds[i].x - br.w / 2);
         br.y = (int)(placedBirds[i].y - br.h / 2);
         SDL_Point pivotBird = { br.w / 2, br.h / 2 };
@@ -44,6 +44,10 @@ void renderBirds(SDL_Renderer *renderer, Bird placedBirds[], int numPlacedBirds,
 }
 
 void renderUI(SDL_Renderer *renderer, TTF_Font *font, int money, int leftPlayerHP, int rightPlayerHP, int windowWidth) {
+    // Placera UI-elementen 5% från toppen
+    int uiY = (int)(WINDOW_HEIGHT * 0.05);
+
+    // Rendera money-texten
     char moneyText[64];
     sprintf(moneyText, "Money: $%d", money);
     SDL_Color white = {255, 255, 255, 255};
@@ -55,24 +59,31 @@ void renderUI(SDL_Renderer *renderer, TTF_Font *font, int money, int leftPlayerH
             SDL_Rect textRect;
             TTF_SizeText(font, moneyText, &textRect.w, &textRect.h);
             textRect.x = windowWidth / 2 - textRect.w / 2;
-            textRect.y = 50;
+            textRect.y = uiY;
             SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
             SDL_DestroyTexture(textTexture);
         }
     }
+
     
-    // Rendera HP-barer med max hp = 10
-    SDL_Rect leftBarOutline = {50, 10, 200, 20};
-    float leftFillWidth = 200 * (leftPlayerHP / 10.0f);
-    SDL_Rect leftBarFill = {50, 10, (int)leftFillWidth, 20};
+    // Använd relativa mått för HP-barerna
+    int hpBarXOffset = 50; // kan också göras relativt
+    int hpBarWidth = (int)(windowWidth * 0.10416667); // 200 om windowWidth är 1920
+    int hpBarHeight = (int)(WINDOW_HEIGHT * 0.02);     // 20 om WINDOW_HEIGHT är 1000
+
+    // Vänster HP-bar
+    SDL_Rect leftBarOutline = {hpBarXOffset, uiY, hpBarWidth, hpBarHeight};
+    float leftFillWidth = hpBarWidth * (leftPlayerHP / 10.0f);
+    SDL_Rect leftBarFill = {hpBarXOffset, uiY, (int)leftFillWidth, hpBarHeight};
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &leftBarOutline);
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     SDL_RenderFillRect(renderer, &leftBarFill);
     
-    SDL_Rect rightBarOutline = {windowWidth - 250, 10, 200, 20};
-    float rightFillWidth = 200 * (rightPlayerHP / 10.0f);
-    SDL_Rect rightBarFill = {windowWidth - 250, 10, (int)rightFillWidth, 20};
+    // Höger HP-bar
+    SDL_Rect rightBarOutline = {windowWidth - hpBarXOffset - hpBarWidth, uiY, hpBarWidth, hpBarHeight};
+    float rightFillWidth = hpBarWidth * (rightPlayerHP / 10.0f);
+    SDL_Rect rightBarFill = {windowWidth - hpBarXOffset - hpBarWidth, uiY, (int)rightFillWidth, hpBarHeight};
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &rightBarOutline);
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);

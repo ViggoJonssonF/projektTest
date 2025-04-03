@@ -7,7 +7,7 @@ INCLUDE = C:\msys64\mingw64\include\SDL2
 CFLAGS = -g -I$(INCLUDE) -c
 LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2 -mwindows -lm -lSDL2_mixer -lSDL2_ttf
 
-OBJS = main.o engine.o gameLogic.o input.o render.o
+OBJS = main.o engine.o gameLogic.o input.o render.o 
 
 projektTest: $(OBJS)
 	$(CC) $(OBJS) -o projektTest $(LDFLAGS)
@@ -28,5 +28,6 @@ render.o: $(SRCDIR)\render.c
 	$(CC) $(CFLAGS) $(SRCDIR)\render.c
 
 clean:
-	del projektTest.exe
-	del *.o
+	
+	rm -f *.o
+	rm -f projektTest.exe
