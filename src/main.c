@@ -11,39 +11,39 @@
 int main(int argc, char **argv) {
     // Definiera banpunkter för fiender
     static SDL_Point pathPointsLeft[] = {
-        { (int)(WINDOW_WIDTH / 3.84),        0 },
-        { (int)(WINDOW_WIDTH / 3.84),        (int)(WINDOW_HEIGHT * 0.09) },
-        { (int)(WINDOW_WIDTH / 10.67),       (int)(WINDOW_HEIGHT * 0.09) },
-        { (int)(WINDOW_WIDTH / 10.67),       (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 6.857),       (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 2.341),       (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 2.341),       (int)(WINDOW_HEIGHT * 0.35) },
-        { (int)(WINDOW_WIDTH / 3.2),         (int)(WINDOW_HEIGHT * 0.35) },
-        { (int)(WINDOW_WIDTH / 3.2),         (int)(WINDOW_HEIGHT * 0.61) },
-        { (int)(WINDOW_WIDTH / 2.526),       (int)(WINDOW_HEIGHT * 0.61) },
-        { (int)(WINDOW_WIDTH / 2.526),       (int)(WINDOW_HEIGHT * 0.90) },
-        { (int)(WINDOW_WIDTH / 13.714),      (int)(WINDOW_HEIGHT * 0.90) },
-        { (int)(WINDOW_WIDTH / 13.714),      (int)(WINDOW_HEIGHT * 0.65) },
-        { (int)(WINDOW_WIDTH / 4.364),       (int)(WINDOW_HEIGHT * 0.65) },
-        { (int)(WINDOW_WIDTH / 4.364),       WINDOW_HEIGHT }
+        { (int)(WINDOW_WIDTH / 3.84), 0 },
+        { (int)(WINDOW_WIDTH / 3.84), (int)(WINDOW_HEIGHT * 0.09) },
+        { (int)(WINDOW_WIDTH / 10.67), (int)(WINDOW_HEIGHT * 0.09) },
+        { (int)(WINDOW_WIDTH / 10.67), (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 6.857), (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 2.341), (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 2.341), (int)(WINDOW_HEIGHT * 0.35) },
+        { (int)(WINDOW_WIDTH / 3.2),   (int)(WINDOW_HEIGHT * 0.35) },
+        { (int)(WINDOW_WIDTH / 3.2),   (int)(WINDOW_HEIGHT * 0.61) },
+        { (int)(WINDOW_WIDTH / 2.526), (int)(WINDOW_HEIGHT * 0.61) },
+        { (int)(WINDOW_WIDTH / 2.526), (int)(WINDOW_HEIGHT * 0.90) },
+        { (int)(WINDOW_WIDTH / 13.714),(int)(WINDOW_HEIGHT * 0.90) },
+        { (int)(WINDOW_WIDTH / 13.714),(int)(WINDOW_HEIGHT * 0.65) },
+        { (int)(WINDOW_WIDTH / 4.364), (int)(WINDOW_HEIGHT * 0.65) },
+        { (int)(WINDOW_WIDTH / 4.364), WINDOW_HEIGHT }
     };
     
     static SDL_Point pathPointsRight[] = {
-        { (int)(WINDOW_WIDTH / 1.352),       0 },
-        { (int)(WINDOW_WIDTH / 1.352),       (int)(WINDOW_HEIGHT * 0.09) },
-        { (int)(WINDOW_WIDTH / 1.103),       (int)(WINDOW_HEIGHT * 0.09) },
-        { (int)(WINDOW_WIDTH / 1.103),       (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 1.170),       (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 1.745),       (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 1.745),       (int)(WINDOW_HEIGHT * 0.35) },
-        { (int)(WINDOW_WIDTH / 1.455),       (int)(WINDOW_HEIGHT * 0.35) },
-        { (int)(WINDOW_WIDTH / 1.455),       (int)(WINDOW_HEIGHT * 0.61) },
-        { (int)(WINDOW_WIDTH / 1.655),       (int)(WINDOW_HEIGHT * 0.61) },
-        { (int)(WINDOW_WIDTH / 1.655),       (int)(WINDOW_HEIGHT * 0.90) },
-        { (int)(WINDOW_WIDTH / 1.078),       (int)(WINDOW_HEIGHT * 0.90) },
-        { (int)(WINDOW_WIDTH / 1.078),       (int)(WINDOW_HEIGHT * 0.65) },
-        { (int)(WINDOW_WIDTH / 1.297),       (int)(WINDOW_HEIGHT * 0.65) },
-        { (int)(WINDOW_WIDTH / 1.297),       WINDOW_HEIGHT }
+        { (int)(WINDOW_WIDTH / 1.352), 0 },
+        { (int)(WINDOW_WIDTH / 1.352), (int)(WINDOW_HEIGHT * 0.09) },
+        { (int)(WINDOW_WIDTH / 1.103), (int)(WINDOW_HEIGHT * 0.09) },
+        { (int)(WINDOW_WIDTH / 1.103), (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 1.170), (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 1.745), (int)(WINDOW_HEIGHT * 0.20) },
+        { (int)(WINDOW_WIDTH / 1.745), (int)(WINDOW_HEIGHT * 0.35) },
+        { (int)(WINDOW_WIDTH / 1.455), (int)(WINDOW_HEIGHT * 0.35) },
+        { (int)(WINDOW_WIDTH / 1.455), (int)(WINDOW_HEIGHT * 0.61) },
+        { (int)(WINDOW_WIDTH / 1.655), (int)(WINDOW_HEIGHT * 0.61) },
+        { (int)(WINDOW_WIDTH / 1.655), (int)(WINDOW_HEIGHT * 0.90) },
+        { (int)(WINDOW_WIDTH / 1.078), (int)(WINDOW_HEIGHT * 0.90) },
+        { (int)(WINDOW_WIDTH / 1.078), (int)(WINDOW_HEIGHT * 0.65) },
+        { (int)(WINDOW_WIDTH / 1.297), (int)(WINDOW_HEIGHT * 0.65) },
+        { (int)(WINDOW_WIDTH / 1.297), WINDOW_HEIGHT }
     };
     
     int numPoints = sizeof(pathPointsLeft) / sizeof(pathPointsLeft[0]);
@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    // Skapa tre Bird-prototyper (tornsalternativ)
+    // Skapa tre Bird-prototyper (tornsalternativ) med attack-animationer
     Bird superbird1;
     superbird1.damage = 1;
     superbird1.range = WINDOW_WIDTH * 0.2f;
@@ -147,15 +147,20 @@ int main(int argc, char **argv) {
     superbird1.cost = 200;
     superbird1.projectileTexture = dartTexture;
     superbird1.texture = superbird1Texture;
-    
+    superbird1.baseTexture = superbird1Texture;
+    superbird1.attackTexture = loadImage(renderer, "resources/superbird1attack.png");
+    superbird1.attackAnimTimer = 0.0f;
     
     Bird batbird1;
-    batbird1.damage = 2;
-    batbird1.range = WINDOW_WIDTH * 0.25f;
-    batbird1.attackSpeed = 1.0f;
+    batbird1.damage = 1;
+    batbird1.range = WINDOW_WIDTH * 0.1f;
+    batbird1.attackSpeed = 4.0f;
     batbird1.cost = 300;
     batbird1.projectileTexture = dartTexture;
     batbird1.texture = batbird1Texture;
+    batbird1.baseTexture = batbird1Texture;
+    batbird1.attackTexture = loadImage(renderer, "resources/batbird1attack.png");
+    batbird1.attackAnimTimer = 0.0f;
     
     Bird brownbird1;
     brownbird1.damage = 3;
@@ -164,6 +169,9 @@ int main(int argc, char **argv) {
     brownbird1.cost = 400;
     brownbird1.projectileTexture = dartTexture;
     brownbird1.texture = brownbird1Texture;
+    brownbird1.baseTexture = brownbird1Texture;
+    brownbird1.attackTexture = loadImage(renderer, "resources/brownbird1attack.png");
+    brownbird1.attackAnimTimer = 0.0f;
     
     // Sätt ihop tornsalternativen i en array
     Bird towerOptions[3];
@@ -177,11 +185,10 @@ int main(int argc, char **argv) {
     int spacing = 20;
     for (int i = 0; i < 3; i++) {
         SDL_QueryTexture(towerIcons[i], NULL, NULL, &iconRects[i].w, &iconRects[i].h);
-        iconRects[i].w /= 2;
-        iconRects[i].h /= 2;
+        // Gör ikonerna 3 gånger mindre
+        iconRects[i].w /= 3;
+        iconRects[i].h /= 3;
     }
-    
-
     int totalIconsHeight = iconRects[0].h + iconRects[1].h + iconRects[2].h + spacing * 2;
     int startY = WINDOW_HEIGHT / 2 - totalIconsHeight / 2;
     for (int i = 0; i < 3; i++) {
@@ -233,7 +240,7 @@ int main(int argc, char **argv) {
         if (spawnTimer >= 5.0f) {
             spawnTimer -= 5.0f;
             if (numEnemiesActive <= MAX_ENEMIES - 2) {
-                int type = enemySpawnCounter % 3; // 0 = röd, 1 = blå, 2 = gul
+                int type = enemySpawnCounter % 3;
                 enemySpawnCounter++;
                 
                 // Vänster fiende
@@ -296,7 +303,7 @@ int main(int argc, char **argv) {
         renderBirds(renderer, placedBirds, numPlacedBirds, birdRotations);
         renderUI(renderer, font, money, leftPlayerHP, rightPlayerHP, WINDOW_WIDTH);
         
-        // Rendera tornikoner
+        // Rendera tornikonerna
         for (int i = 0; i < 3; i++) {
             SDL_RenderCopy(renderer, towerIcons[i], NULL, &iconRects[i]);
         }

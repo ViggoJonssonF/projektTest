@@ -93,11 +93,20 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
     SDL_Texture *dartTexture, SDL_Texture *enemyTextures[]) {
     
     for (int i = 0; i < numPlacedBirds; i++) {
+        // Uppdatera attack-animationen: om timern är aktiv, minska den och återställ texturen om tiden tagit slut.
+        if (placedBirds[i].attackAnimTimer > 0) {
+            placedBirds[i].attackAnimTimer -= dt;
+            if (placedBirds[i].attackAnimTimer <= 0) {
+                placedBirds[i].texture = placedBirds[i].baseTexture;
+            }
+        }
+        
         placedBirds[i].attackTimer += dt;
         Enemy *target = NULL;
         float bestProgress = -1.0f;
         bool birdIsLeft = (placedBirds[i].x < WINDOW_WIDTH/2);
         bool birdIsRight = (placedBirds[i].x > WINDOW_WIDTH/2);
+        
         for (int j = 0; j < numEnemiesActive; j++) {
             if (birdIsLeft && (enemies[j].x > WINDOW_WIDTH*0.546875))
                 continue;
@@ -114,9 +123,15 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
                 }
             }
         }
+        
         if (target != NULL && placedBirds[i].attackTimer >= (1.0f / placedBirds[i].attackSpeed)) {
             placedBirds[i].attackTimer = 0.0f;
+            // Sätt attack-animation: byt till attack-textur och sätt en kort timer (t.ex. 0.2 sekunder)
+            placedBirds[i].attackAnimTimer = 0.2f;
+            placedBirds[i].texture = placedBirds[i].attackTexture;
+            
             playPopSound();
+            
             if (*numProjectiles < MAX_PROJECTILES) {
                 Projectile newProj;
                 newProj.startX = placedBirds[i].x;
@@ -140,6 +155,7 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
                 }
                 projectiles[(*numProjectiles)++] = newProj;
             }
+            
             target->hp -= placedBirds[i].damage;
             if (target->hp <= 0) {
                 target->active = false;

@@ -18,20 +18,23 @@ typedef struct {
     float attackTimer;
     int cost;
     SDL_Texture *projectileTexture;
-    SDL_Texture *texture; // Textur för tornets utseende
+    SDL_Texture *texture;      // Aktuell textur (kan ändras vid attack)
+    SDL_Texture *baseTexture;  // Normal (base) textur
+    SDL_Texture *attackTexture;// Attackversionens textur
+    float attackAnimTimer;     // Timer för hur länge attackbilden visas
 } Bird;
 
 typedef struct {
     int hp;
     float speed;
-    float x, y;            // Aktuella koordinater
-    int currentSegment;    // Index för nuvarande segment
-    float segmentProgress; // 0.0 - 1.0
-    SDL_Texture *texture;  // Textur (t.ex. för fienderna)
-    int type;              // 0 = röd, 1 = blå, 2 = gul
+    float x, y;            
+    int currentSegment;    
+    float segmentProgress; 
+    SDL_Texture *texture;  
+    int type;              
     bool active;
-    int side;              // 0 = vänster, 1 = höger
-    float angle;           // Rotation så att "botten" pekar framåt
+    int side;              
+    float angle;           
 } Enemy;
 
 typedef struct {
@@ -66,7 +69,6 @@ void cleanupAudio();
 // -------------------------
 // Deklarationer för inputhantering
 // -------------------------
-// Använder den nya funktionen för multipla tornsalternativ
 void handleInputMulti(bool *quit, bool *placingBird, SDL_Rect iconRects[], int numIcons,
                       int *selectedOption, int *money, int *numPlacedBirds, Bird towerOptions[], Bird placedBirds[]);
 
