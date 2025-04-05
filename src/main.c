@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
         { (int)(WINDOW_WIDTH / 13.714),      (int)(WINDOW_HEIGHT * 0.90) },
         { (int)(WINDOW_WIDTH / 13.714),      (int)(WINDOW_HEIGHT * 0.65) },
         { (int)(WINDOW_WIDTH / 4.364),       (int)(WINDOW_HEIGHT * 0.65) },
-        { (int)(WINDOW_WIDTH / 4.364),       WINDOW_HEIGHT }  // WINDOW_HEIGHT*1.0
+        { (int)(WINDOW_WIDTH / 4.364),       WINDOW_HEIGHT }
     };
     
     static SDL_Point pathPointsRight[] = {
@@ -46,14 +46,12 @@ int main(int argc, char **argv) {
         { (int)(WINDOW_WIDTH / 1.297),       WINDOW_HEIGHT }
     };
     
+    int numPoints = sizeof(pathPointsLeft) / sizeof(pathPointsLeft[0]);
     
-    static int numPoints = sizeof(pathPointsLeft) / sizeof(pathPointsLeft[0]);
     SDL_Window  *window = NULL;
     SDL_Renderer *renderer = NULL;
-    
-    if (!initSDL(&window, &renderer, WINDOW_WIDTH, WINDOW_HEIGHT)) {
+    if (!initSDL(&window, &renderer, WINDOW_WIDTH, WINDOW_HEIGHT))
         return 1;
-    }
     
     if (!initAudio()) {
         cleanup(window, renderer, NULL);
@@ -73,6 +71,7 @@ int main(int argc, char **argv) {
         cleanup(window, renderer, NULL);
         return 1;
     }
+    
     Mix_Music *bgm = Mix_LoadMUS("resources/gamesound.mp3");
     
     SDL_Texture *mapTexture = loadImage(renderer, "resources/map.png");
@@ -83,8 +82,8 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    SDL_Texture *birdTexture = loadImage(renderer, "resources/superbird.png");
-    if (!birdTexture) {
+    SDL_Texture *dartTexture = loadImage(renderer, "resources/dart.png");
+    if (!dartTexture) {
         SDL_DestroyTexture(mapTexture);
         TTF_CloseFont(font);
         TTF_Quit();
@@ -92,22 +91,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    SDL_Texture *birdIcon = loadImage(renderer, "resources/superbirdicon.png");
-    if (!birdIcon) {
-        SDL_DestroyTexture(mapTexture);
-        SDL_DestroyTexture(birdTexture);
-        TTF_CloseFont(font);
-        TTF_Quit();
-        cleanup(window, renderer, NULL);
-        return 1;
-    }
-    
-    SDL_Rect iconRect;
-    SDL_QueryTexture(birdIcon, NULL, NULL, &iconRect.w, &iconRect.h);
-    iconRect.x = WINDOW_WIDTH / 2 - iconRect.w / 2;
-    iconRect.y = WINDOW_HEIGHT / 2 - iconRect.h / 2;
-    
-    // Ladda fiende-texturer (tre typer)
+    // Ladda fiende-texturer
     SDL_Texture *enemyTextures[3];
     enemyTextures[0] = loadImage(renderer, "resources/redbloon.png");
     enemyTextures[1] = loadImage(renderer, "resources/bluebloon.png");
@@ -118,8 +102,7 @@ int main(int argc, char **argv) {
                 SDL_DestroyTexture(enemyTextures[j]);
             }
             SDL_DestroyTexture(mapTexture);
-            SDL_DestroyTexture(birdTexture);
-            SDL_DestroyTexture(birdIcon);
+            SDL_DestroyTexture(dartTexture);
             TTF_CloseFont(font);
             TTF_Quit();
             cleanup(window, renderer, NULL);
@@ -127,39 +110,89 @@ int main(int argc, char **argv) {
         }
     }
     
-    SDL_Texture *dartTexture = loadImage(renderer, "resources/dart.png");
-    if (!dartTexture) {
+    // Ladda de tre karaktärernas texturer (tornens utseende)
+    SDL_Texture *superbird1Texture = loadImage(renderer, "resources/superbird1.png");
+    SDL_Texture *batbird1Texture   = loadImage(renderer, "resources/batbird1.png");
+    SDL_Texture *brownbird1Texture = loadImage(renderer, "resources/brownbird1.png");
+    if (!superbird1Texture || !batbird1Texture || !brownbird1Texture) {
         SDL_DestroyTexture(mapTexture);
-        SDL_DestroyTexture(birdTexture);
-        SDL_DestroyTexture(birdIcon);
-        for (int i = 0; i < 3; i++) {
-            SDL_DestroyTexture(enemyTextures[i]);
-        }
+        SDL_DestroyTexture(dartTexture);
         TTF_CloseFont(font);
         TTF_Quit();
         cleanup(window, renderer, NULL);
         return 1;
     }
     
-    SDL_Rect mapRect = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
+    // Ladda ikonbilderna för de tre karaktärerna
+    SDL_Texture *superbird1icon = loadImage(renderer, "resources/superbird1icon.png");
+    SDL_Texture *batbird1icon   = loadImage(renderer, "resources/batbird1icon.png");
+    SDL_Texture *brownbird1icon = loadImage(renderer, "resources/brownbird1icon.png");
+    if (!superbird1icon || !batbird1icon || !brownbird1icon) {
+        SDL_DestroyTexture(mapTexture);
+        SDL_DestroyTexture(dartTexture);
+        SDL_DestroyTexture(superbird1Texture);
+        SDL_DestroyTexture(batbird1Texture);
+        SDL_DestroyTexture(brownbird1Texture);
+        TTF_CloseFont(font);
+        TTF_Quit();
+        cleanup(window, renderer, NULL);
+        return 1;
+    }
     
-    Bird superbird;
-    superbird.damage = 1;
-    superbird.range = WINDOW_WIDTH*0.2; //drygt 400 px vid 1920 i bredd
-    superbird.attackSpeed = 0.7f;
-    superbird.x = WINDOW_WIDTH / 2.0f;
-    superbird.y = WINDOW_HEIGHT / 2.0f;
-    superbird.attackTimer = 0.0f;
-    superbird.cost = 200;
-    superbird.projectileTexture = dartTexture;
+    // Skapa tre Bird-prototyper (tornsalternativ)
+    Bird superbird1;
+    superbird1.damage = 1;
+    superbird1.range = WINDOW_WIDTH * 0.2f;
+    superbird1.attackSpeed = 0.7f;
+    superbird1.cost = 200;
+    superbird1.projectileTexture = dartTexture;
+    superbird1.texture = superbird1Texture;
+    
+    
+    Bird batbird1;
+    batbird1.damage = 2;
+    batbird1.range = WINDOW_WIDTH * 0.25f;
+    batbird1.attackSpeed = 1.0f;
+    batbird1.cost = 300;
+    batbird1.projectileTexture = dartTexture;
+    batbird1.texture = batbird1Texture;
+    
+    Bird brownbird1;
+    brownbird1.damage = 3;
+    brownbird1.range = WINDOW_WIDTH * 0.3f;
+    brownbird1.attackSpeed = 1.2f;
+    brownbird1.cost = 400;
+    brownbird1.projectileTexture = dartTexture;
+    brownbird1.texture = brownbird1Texture;
+    
+    // Sätt ihop tornsalternativen i en array
+    Bird towerOptions[3];
+    towerOptions[0] = superbird1;
+    towerOptions[1] = batbird1;
+    towerOptions[2] = brownbird1;
+    
+    // Placera ikonbilderna centrerat horisontellt med jämnt vertikalt mellanrum (i mitten av skärmen)
+    SDL_Rect iconRects[3];
+    SDL_Texture *towerIcons[3] = { superbird1icon, batbird1icon, brownbird1icon };
+    int spacing = 20;
+    for (int i = 0; i < 3; i++) {
+        SDL_QueryTexture(towerIcons[i], NULL, NULL, &iconRects[i].w, &iconRects[i].h);
+        iconRects[i].w /= 2;
+        iconRects[i].h /= 2;
+    }
+    
+
+    int totalIconsHeight = iconRects[0].h + iconRects[1].h + iconRects[2].h + spacing * 2;
+    int startY = WINDOW_HEIGHT / 2 - totalIconsHeight / 2;
+    for (int i = 0; i < 3; i++) {
+        iconRects[i].x = WINDOW_WIDTH / 2 - iconRects[i].w / 2;
+        iconRects[i].y = startY;
+        startY += iconRects[i].h + spacing;
+    }
     
     int money = 500;
     float moneyTimer = 0.0f;
-    
-    SDL_Rect baseEnemyRect;
-    SDL_QueryTexture(enemyTextures[0], NULL, NULL, &baseEnemyRect.w, &baseEnemyRect.h);
-    baseEnemyRect.w /= 5.2;
-    baseEnemyRect.h /= 5.2;
+    SDL_Rect mapRect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
     
     Enemy enemies[MAX_ENEMIES];
     int numEnemiesActive = 0;
@@ -168,19 +201,23 @@ int main(int argc, char **argv) {
     Bird placedBirds[MAX_PLACED_BIRDS];
     int numPlacedBirds = 0;
     bool placingBird = false;
-    
+    int selectedOption = -1;
     float birdRotations[MAX_PLACED_BIRDS] = {0};
-    
     int leftPlayerHP = 10;
     int rightPlayerHP = 10;
+    
+    SDL_Rect baseEnemyRect;
+    SDL_QueryTexture(enemyTextures[0], NULL, NULL, &baseEnemyRect.w, &baseEnemyRect.h);
+    baseEnemyRect.w /= 5.2;
+    baseEnemyRect.h /= 5.2;
     
     Uint32 lastTime = SDL_GetTicks();
     float spawnTimer = 0.0f;
     int enemySpawnCounter = 0;
-    
     bool quit = false;
+    
     while (!quit) {
-        handleInput(&quit, &placingBird, iconRect, &money, &numPlacedBirds, superbird, placedBirds);
+        handleInputMulti(&quit, &placingBird, iconRects, 3, &selectedOption, &money, &numPlacedBirds, towerOptions, placedBirds);
         
         Uint32 currentTime = SDL_GetTicks();
         float dt = (currentTime - lastTime) / 1000.0f;
@@ -256,10 +293,16 @@ int main(int argc, char **argv) {
         renderMap(renderer, mapTexture, mapRect);
         renderEnemies(renderer, enemies, numEnemiesActive, baseEnemyRect);
         renderProjectiles(renderer, projectiles, numProjectiles);
-        renderBirds(renderer, placedBirds, numPlacedBirds, birdTexture, birdRotations);
+        renderBirds(renderer, placedBirds, numPlacedBirds, birdRotations);
         renderUI(renderer, font, money, leftPlayerHP, rightPlayerHP, WINDOW_WIDTH);
         
-        SDL_RenderCopy(renderer, birdIcon, NULL, &iconRect);
+        // Rendera tornikoner
+        for (int i = 0; i < 3; i++) {
+            SDL_RenderCopy(renderer, towerIcons[i], NULL, &iconRects[i]);
+        }
+        
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
         
         bool gameOver = false;
         char gameOverText[64];
@@ -270,7 +313,6 @@ int main(int argc, char **argv) {
             gameOver = true;
             sprintf(gameOverText, "Player 2 loses!");
         }
-        
         if (gameOver) {
             SDL_Color red = {255, 0, 0, 255};
             SDL_Surface *gameOverSurface = TTF_RenderText_Solid(font, gameOverText, red);
@@ -292,18 +334,19 @@ int main(int argc, char **argv) {
             SDL_Delay(3000);
             break;
         }
-        
-        SDL_RenderPresent(renderer);
-        SDL_Delay(16);
     }
     
     SDL_DestroyTexture(mapTexture);
-    SDL_DestroyTexture(birdTexture);
-    SDL_DestroyTexture(birdIcon);
+    SDL_DestroyTexture(dartTexture);
+    SDL_DestroyTexture(superbird1Texture);
+    SDL_DestroyTexture(batbird1Texture);
+    SDL_DestroyTexture(brownbird1Texture);
+    SDL_DestroyTexture(superbird1icon);
+    SDL_DestroyTexture(batbird1icon);
+    SDL_DestroyTexture(brownbird1icon);
     for (int i = 0; i < 3; i++) {
         SDL_DestroyTexture(enemyTextures[i]);
     }
-    SDL_DestroyTexture(dartTexture);
     TTF_CloseFont(font);
     TTF_Quit();
     cleanupAudio();

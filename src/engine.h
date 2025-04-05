@@ -18,6 +18,7 @@ typedef struct {
     float attackTimer;
     int cost;
     SDL_Texture *projectileTexture;
+    SDL_Texture *texture; // Textur för tornets utseende
 } Bird;
 
 typedef struct {
@@ -27,10 +28,10 @@ typedef struct {
     int currentSegment;    // Index för nuvarande segment
     float segmentProgress; // 0.0 - 1.0
     SDL_Texture *texture;  // Textur (t.ex. för fienderna)
-    int type;              // 0 = röd, 1 = blå, 2 = gul (eller dina nya typer)
+    int type;              // 0 = röd, 1 = blå, 2 = gul
     bool active;
     int side;              // 0 = vänster, 1 = höger
-    float angle;           // Rotation (så att "botten" pekar framåt)
+    float angle;           // Rotation så att "botten" pekar framåt
 } Enemy;
 
 typedef struct {
@@ -40,10 +41,16 @@ typedef struct {
     SDL_Texture *texture;
     bool active;
     float angle;
-    // Fält för att spara start- och målposition
     float startX;
     float startY;
 } Projectile;
+
+// Struktur för tornsalternativ
+typedef struct {
+    Bird prototype;         // Egenskaper för tornet
+    SDL_Texture *iconTexture; // Ikon för att välja tornet
+    SDL_Rect iconRect;        // Position och storlek för ikonen
+} TowerOption;
 
 // -------------------------
 // Deklarationer för SDL- och ljudfunktioner
@@ -59,7 +66,9 @@ void cleanupAudio();
 // -------------------------
 // Deklarationer för inputhantering
 // -------------------------
-void handleInput(bool *quit, bool *placingBird, SDL_Rect iconRect, int *money, int *numPlacedBirds, Bird superbird, Bird placedBirds[]);
+// Använder den nya funktionen för multipla tornsalternativ
+void handleInputMulti(bool *quit, bool *placingBird, SDL_Rect iconRects[], int numIcons,
+                      int *selectedOption, int *money, int *numPlacedBirds, Bird towerOptions[], Bird placedBirds[]);
 
 // -------------------------
 // Deklarationer för uppdateringsfunktioner (game logic)
@@ -79,7 +88,7 @@ void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Enemy enemie
 void renderMap(SDL_Renderer *renderer, SDL_Texture *mapTexture, SDL_Rect mapRect);
 void renderEnemies(SDL_Renderer *renderer, Enemy enemies[], int numEnemiesActive, SDL_Rect baseEnemyRect);
 void renderProjectiles(SDL_Renderer *renderer, Projectile projectiles[], int numProjectiles);
-void renderBirds(SDL_Renderer *renderer, Bird placedBirds[], int numPlacedBirds, SDL_Texture *birdTexture, float birdRotations[]);
+void renderBirds(SDL_Renderer *renderer, Bird placedBirds[], int numPlacedBirds, float birdRotations[]);
 void renderUI(SDL_Renderer *renderer, TTF_Font *font, int money, int leftPlayerHP, int rightPlayerHP, int windowWidth);
 
 #endif

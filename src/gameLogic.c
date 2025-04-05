@@ -41,15 +41,10 @@ void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt,
             float y2 = (float)path[enemies[i].currentSegment + 1].y;
             enemies[i].x = lerp(x1, x2, enemies[i].segmentProgress);
             enemies[i].y = lerp(y1, y2, enemies[i].segmentProgress);
-            // Beräkna basvinkeln så att "botten" av bilden pekar framåt (nedåt)
             float baseAngle = atan2f(y2 - y1, x2 - x1) * 180.0f / M_PI - 90.0f;
-            enemies[i].angle = baseAngle; 
-            
-            // Om vi är i sista segmentet med full progress räknas fienden som nått slutet
+            enemies[i].angle = baseAngle;
             if ((enemies[i].currentSegment == pathCount - 2 && enemies[i].segmentProgress >= 1.0f) ||
                 (enemies[i].currentSegment >= pathCount - 1)) {
-                // Fiender på vänster sida drar HP från vänster spelare,
-                // fiender på högersidan drar HP från höger spelare.
                 if (enemies[i].side == 0) {
                     *leftPlayerHP -= enemies[i].hp;
                 } else {
@@ -59,7 +54,6 @@ void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt,
             }
         }
     }
-
     for (int i = 0; i < *numEnemiesActive;) {
         if (!enemies[i].active) {
             for (int j = i; j < *numEnemiesActive - 1; j++) {
@@ -77,7 +71,6 @@ void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt) 
         if (!projectiles[i].active) continue;
         projectiles[i].x += projectiles[i].vx * PROJECTILE_SPEED * dt;
         projectiles[i].y += projectiles[i].vy * PROJECTILE_SPEED * dt;
-        
         if (projectiles[i].x < 0 || projectiles[i].x > WINDOW_WIDTH ||
             projectiles[i].y < 0 || projectiles[i].y > WINDOW_HEIGHT) {
             projectiles[i].active = false;
@@ -103,20 +96,16 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
         placedBirds[i].attackTimer += dt;
         Enemy *target = NULL;
         float bestProgress = -1.0f;
-        
         bool birdIsLeft = (placedBirds[i].x < WINDOW_WIDTH/2);
         bool birdIsRight = (placedBirds[i].x > WINDOW_WIDTH/2);
-        
         for (int j = 0; j < numEnemiesActive; j++) {
             if (birdIsLeft && (enemies[j].x > WINDOW_WIDTH*0.546875))
                 continue;
             if (birdIsRight && (enemies[j].x < WINDOW_WIDTH*0.453125))
                 continue;
-            
             float dx = enemies[j].x - placedBirds[i].x;
             float dy = enemies[j].y - placedBirds[i].y;
             float dist = sqrtf(dx * dx + dy * dy);
-            
             if (dist <= placedBirds[i].range) {
                 float progress = enemies[j].currentSegment + enemies[j].segmentProgress;
                 if (progress > bestProgress) {
@@ -125,11 +114,9 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
                 }
             }
         }
-        
         if (target != NULL && placedBirds[i].attackTimer >= (1.0f / placedBirds[i].attackSpeed)) {
             placedBirds[i].attackTimer = 0.0f;
             playPopSound();
-            
             if (*numProjectiles < MAX_PROJECTILES) {
                 Projectile newProj;
                 newProj.startX = placedBirds[i].x;
@@ -139,7 +126,6 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
                 newProj.speed = PROJECTILE_SPEED;
                 newProj.texture = dartTexture;
                 newProj.active = true;
-                
                 float dx = target->x - placedBirds[i].x;
                 float dy = target->y - placedBirds[i].y;
                 float mag = sqrtf(dx * dx + dy * dy);
@@ -154,7 +140,6 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
                 }
                 projectiles[(*numProjectiles)++] = newProj;
             }
-            
             target->hp -= placedBirds[i].damage;
             if (target->hp <= 0) {
                 target->active = false;
@@ -177,21 +162,17 @@ void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Enemy enemie
     for (int i = 0; i < numPlacedBirds; i++) {
         Enemy *target = NULL;
         float bestProgress = -1.0f;
-        
         bool birdIsLeft = (placedBirds[i].x <= WINDOW_WIDTH*0.453125);
         bool birdIsRight = (placedBirds[i].x >= WINDOW_WIDTH*0.546875);
-        
         if (!birdIsLeft && !birdIsRight) {
             birdRotations[i] = 0.0f;
             continue;
         }
-        
         for (int j = 0; j < numEnemiesActive; j++) {
             if (birdIsLeft && (enemies[j].x > WINDOW_WIDTH*0.453125))
                 continue;
             if (birdIsRight && (enemies[j].x < WINDOW_WIDTH*0.546875))
                 continue;
-            
             float dx = enemies[j].x - placedBirds[i].x;
             float dy = enemies[j].y - placedBirds[i].y;
             float dist = sqrtf(dx * dx + dy * dy);

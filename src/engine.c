@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "defs.h"
 
-// Globalt ljudobjekt
 Mix_Chunk *popSound = NULL;
 Mix_Music *bgm = NULL;
 
@@ -11,13 +10,11 @@ bool initAudio() {
         printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
         return false;
     }
-    // Ladda bakgrundsmusik (gamesound.mp3)
     bgm = Mix_LoadMUS("resources/gamesound.mp3");
     if (!bgm) {
         printf("Failed to load background music: %s\n", Mix_GetError());
         return false;
     }
-    // Sätt volym till 50% (max 128) och spela musik i en oändlig loop
     Mix_VolumeMusic(64);
     Mix_PlayMusic(bgm, -1);
 
