@@ -88,10 +88,8 @@ void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt) 
     }
 }
 
-void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, 
-    Projectile projectiles[], int *numProjectiles, float dt, 
-    SDL_Texture *dartTexture, SDL_Texture *enemyTextures[]) {
-    
+void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, Projectile projectiles[], int *numProjectiles, float dt, SDL_Texture *enemyTextures[]){
+
     for (int i = 0; i < numPlacedBirds; i++) {
         // Uppdatera attack-animationen: om timern är aktiv, minska den och återställ texturen om tiden tagit slut.
         if (placedBirds[i].attackAnimTimer > 0) {
@@ -126,7 +124,6 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
         
         if (target != NULL && placedBirds[i].attackTimer >= (1.0f / placedBirds[i].attackSpeed)) {
             placedBirds[i].attackTimer = 0.0f;
-            // Sätt attack-animation: byt till attack-textur och sätt en kort timer (t.ex. 0.2 sekunder)
             placedBirds[i].attackAnimTimer = 0.2f;
             placedBirds[i].texture = placedBirds[i].attackTexture;
             
@@ -139,7 +136,8 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
                 newProj.x = newProj.startX;
                 newProj.y = newProj.startY;
                 newProj.speed = PROJECTILE_SPEED;
-                newProj.texture = dartTexture;
+                // Använd fågelns egna projectileTexture istället för dartTexture
+                newProj.texture = placedBirds[i].projectileTexture;
                 newProj.active = true;
                 float dx = target->x - placedBirds[i].x;
                 float dy = target->y - placedBirds[i].y;
@@ -155,6 +153,7 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
                 }
                 projectiles[(*numProjectiles)++] = newProj;
             }
+
             
             target->hp -= placedBirds[i].damage;
             if (target->hp <= 0) {

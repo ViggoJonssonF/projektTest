@@ -80,8 +80,7 @@ void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt,
     SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP);
 void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt);
 void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, 
-                 Projectile projectiles[], int *numProjectiles, float dt, 
-                 SDL_Texture *dartTexture, SDL_Texture *enemyTextures[]);
+                 Projectile projectiles[], int *numProjectiles, float dt, SDL_Texture *enemyTextures[]);
 void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, float birdRotations[]);
 
 // -------------------------

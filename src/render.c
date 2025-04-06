@@ -23,6 +23,8 @@ void renderProjectiles(SDL_Renderer *renderer, Projectile projectiles[], int num
     for (int i = 0; i < numProjectiles; i++) {
         SDL_Rect dRect;
         SDL_QueryTexture(projectiles[i].texture, NULL, NULL, &dRect.w, &dRect.h);
+
+        
         dRect.x = (int)(projectiles[i].x - dRect.w / 2);
         dRect.y = (int)(projectiles[i].y - dRect.h / 2);
         SDL_Point dPivot = { dRect.w / 2, dRect.h / 2 };

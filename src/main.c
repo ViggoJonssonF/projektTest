@@ -90,6 +90,15 @@ int main(int argc, char **argv) {
         cleanup(window, renderer, NULL);
         return 1;
     }
+
+    SDL_Texture *bulletTexture = loadImage(renderer, "resources/bullet.png");
+    if (!bulletTexture) {
+        SDL_DestroyTexture(mapTexture);
+        TTF_CloseFont(font);
+        TTF_Quit();
+        cleanup(window, renderer, NULL);
+        return 1;
+    }
     
     // Ladda fiende-texturer
     SDL_Texture *enemyTextures[3];
@@ -103,6 +112,7 @@ int main(int argc, char **argv) {
             }
             SDL_DestroyTexture(mapTexture);
             SDL_DestroyTexture(dartTexture);
+            SDL_DestroyTexture(bulletTexture);
             TTF_CloseFont(font);
             TTF_Quit();
             cleanup(window, renderer, NULL);
@@ -117,6 +127,7 @@ int main(int argc, char **argv) {
     if (!superbird1Texture || !batbird1Texture || !brownbird1Texture) {
         SDL_DestroyTexture(mapTexture);
         SDL_DestroyTexture(dartTexture);
+        SDL_DestroyTexture(bulletTexture);
         TTF_CloseFont(font);
         TTF_Quit();
         cleanup(window, renderer, NULL);
@@ -130,6 +141,7 @@ int main(int argc, char **argv) {
     if (!superbird1icon || !batbird1icon || !brownbird1icon) {
         SDL_DestroyTexture(mapTexture);
         SDL_DestroyTexture(dartTexture);
+        SDL_DestroyTexture(bulletTexture);
         SDL_DestroyTexture(superbird1Texture);
         SDL_DestroyTexture(batbird1Texture);
         SDL_DestroyTexture(brownbird1Texture);
@@ -142,10 +154,10 @@ int main(int argc, char **argv) {
     // Skapa tre Bird-prototyper (tornsalternativ) med attack-animationer
     Bird superbird1;
     superbird1.damage = 1;
-    superbird1.range = WINDOW_WIDTH * 0.2f;
-    superbird1.attackSpeed = 0.7f;
+    superbird1.range = WINDOW_WIDTH * 0.1f;
+    superbird1.attackSpeed = 6.0f;
     superbird1.cost = 200;
-    superbird1.projectileTexture = dartTexture;
+    superbird1.projectileTexture = bulletTexture;
     superbird1.texture = superbird1Texture;
     superbird1.baseTexture = superbird1Texture;
     superbird1.attackTexture = loadImage(renderer, "resources/superbird1attack.png");
@@ -291,7 +303,7 @@ int main(int argc, char **argv) {
         
         updateEnemies(enemies, &numEnemiesActive, dt, pathPointsLeft, pathPointsRight, numPoints, enemyTextures, &leftPlayerHP, &rightPlayerHP);
         updateProjectiles(projectiles, &numProjectiles, dt);
-        updateBirds(placedBirds, numPlacedBirds, enemies, numEnemiesActive, projectiles, &numProjectiles, dt, dartTexture, enemyTextures);
+        updateBirds(placedBirds, numPlacedBirds, enemies, numEnemiesActive, projectiles, &numProjectiles, dt, enemyTextures);
         calculateBirdRotations(placedBirds, numPlacedBirds, enemies, numEnemiesActive, birdRotations);
         
         SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
@@ -345,6 +357,7 @@ int main(int argc, char **argv) {
     
     SDL_DestroyTexture(mapTexture);
     SDL_DestroyTexture(dartTexture);
+    SDL_DestroyTexture(bulletTexture);
     SDL_DestroyTexture(superbird1Texture);
     SDL_DestroyTexture(batbird1Texture);
     SDL_DestroyTexture(brownbird1Texture);
