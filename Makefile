@@ -1,33 +1,40 @@
-# Makefile for Windows
+# Makefile för både macOS och Windows (MSYS2)
 
-SRCDIR = C:\Users\PC\programsSDL\projektTest\projektTest\src
-CC = gcc
-INCLUDE = C:\msys64\mingw64\include\SDL2
+ifeq ($(OS),Windows_NT)
+  # Inställningar för Windows (MSYS2)
+  CC      = gcc
+  INCLUDE = C:/msys64/mingw64/include/SDL2
+  LIBDIR  = C:/msys64/mingw64/lib
+  CFLAGS  = -g -I$(INCLUDE) -c
+  LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2 -lSDL2_mixer -lSDL2_ttf -lm
+  SRCDIR = .\src
+else
+  # Inställningar för macOS
+  SRCDIR = src
+  CC      = gcc-14  # Ändra vid behov om du använder en annan version
+  INCLUDE = /usr/local/include/SDL2
+  LIBDIR  = /usr/local/lib
+  CFLAGS  = -g -I$(INCLUDE) -c
+  LDFLAGS = -L$(LIBDIR) -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lm
+endif
 
-CFLAGS = -g -I$(INCLUDE) -c
-LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2 -mwindows -lm -lSDL2_mixer -lSDL2_ttf
+# Plats för källkoden
 
-OBJS = main.o engine.o gameLogic.o input.o render.o 
+# Objektfiler som ska byggas
+OBJS   = main.o engine.o gameLogic.o input.o render.o
 
-projektTest: $(OBJS)
-	$(CC) $(OBJS) -o projektTest $(LDFLAGS)
+# Målnamn (produkten)
+TARGET = projektTest
 
-main.o: $(SRCDIR)\main.c
-	$(CC) $(CFLAGS) $(SRCDIR)\main.c
+# Länkningsregel: bygg körbar fil av objektfilerna
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
 
-engine.o: $(SRCDIR)\engine.c
-	$(CC) $(CFLAGS) $(SRCDIR)\engine.c
+# Kompilering av enskilda .c-filer från SRCDIR till .o
+%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) $< -o $@
 
-gameLogic.o: $(SRCDIR)\gameLogic.c
-	$(CC) $(CFLAGS) $(SRCDIR)\gameLogic.c
-
-input.o: $(SRCDIR)\input.c
-	$(CC) $(CFLAGS) $(SRCDIR)\input.c
-
-render.o: $(SRCDIR)\render.c
-	$(CC) $(CFLAGS) $(SRCDIR)\render.c
-
+# Rensa byggfilerna
 clean:
-	
-	rm -f *.o
-	rm -f projektTest.exe
+	rm -f *.o $(TARGET)
+################
