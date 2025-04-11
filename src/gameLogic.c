@@ -124,7 +124,7 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
         
         if (target != NULL && placedBirds[i].attackTimer >= (1.0f / placedBirds[i].attackSpeed)) {
             placedBirds[i].attackTimer = 0.0f;
-            placedBirds[i].attackAnimTimer = 0.2f;
+            placedBirds[i].attackAnimTimer = 0.1f;
             placedBirds[i].texture = placedBirds[i].attackTexture;
             
             playPopSound();
