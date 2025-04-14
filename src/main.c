@@ -7,7 +7,7 @@
 #include <SDL_ttf.h>
 #include "defs.h"
 #include "engine.h"
-
+//hejsan
 int main(int argc, char **argv) {
     // Definiera banpunkter för fiender
     static SDL_Point pathPointsLeft[] = {
