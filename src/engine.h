@@ -6,7 +6,7 @@
 #include <SDL_mixer.h>
 #include <stdbool.h>
 #include <SDL_ttf.h>
-
+#include "paths.h"
 // -------------------------
 // Typdefinitioner för spelet
 // -------------------------
@@ -75,9 +75,7 @@ void handleInputMulti(bool *quit, bool *placingBird, SDL_Rect iconRects[], int n
 // -------------------------
 // Deklarationer för uppdateringsfunktioner (game logic)
 // -------------------------
-void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, 
-    SDL_Point pathLeft[], SDL_Point pathRight[], int numPoints, 
-    SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP);
+void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, Paths *paths, SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP);
 void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt);
 void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, 
                  Projectile projectiles[], int *numProjectiles, float dt, SDL_Texture *enemyTextures[]);

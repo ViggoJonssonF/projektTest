@@ -1,4 +1,5 @@
 #include "engine.h"
+#include "paths.h"
 #include <math.h>
 #include <stdio.h>
 #include "defs.h"
@@ -14,42 +15,34 @@ static float lerp(float a, float b, float t) {
     return a + (b - a) * t;
 }
 
-void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, 
-    SDL_Point pathLeft[], SDL_Point pathRight[], int numPoints, 
-    SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP) {
+void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, Paths *paths, SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP) {
     for (int i = 0; i < *numEnemiesActive; i++) {
         if (!enemies[i].active)
             continue;
-        SDL_Point *path = (enemies[i].side == 0) ? pathLeft : pathRight;
-        int pathCount = numPoints;
+        SDL_Point *p = (enemies[i].side == 0) ? paths->points.left : paths->points.right;
+        int pathCount = paths->nmbrOfPoints;
         if (pathCount > 1 && enemies[i].currentSegment < pathCount - 1) {
-            float segDist = distanceBetween(
-                path[enemies[i].currentSegment].x, path[enemies[i].currentSegment].y,
-                path[enemies[i].currentSegment + 1].x, path[enemies[i].currentSegment + 1].y);
+            float segDist = distanceBetween(p[enemies[i].currentSegment].x, p[enemies[i].currentSegment].y, p[enemies[i].currentSegment + 1].x, p[enemies[i].currentSegment + 1].y);
             float moveAmount = (enemies[i].speed * dt) / segDist;
             enemies[i].segmentProgress += moveAmount;
             while (enemies[i].segmentProgress >= 1.0f && enemies[i].currentSegment < pathCount - 2) {
                 enemies[i].segmentProgress -= 1.0f;
                 enemies[i].currentSegment++;
-                segDist = distanceBetween(
-                    path[enemies[i].currentSegment].x, path[enemies[i].currentSegment].y,
-                    path[enemies[i].currentSegment + 1].x, path[enemies[i].currentSegment + 1].y);
+                segDist = distanceBetween(p[enemies[i].currentSegment].x, p[enemies[i].currentSegment].y, p[enemies[i].currentSegment + 1].x, p[enemies[i].currentSegment + 1].y);
             }
-            float x1 = (float)path[enemies[i].currentSegment].x;
-            float y1 = (float)path[enemies[i].currentSegment].y;
-            float x2 = (float)path[enemies[i].currentSegment + 1].x;
-            float y2 = (float)path[enemies[i].currentSegment + 1].y;
+            float x1 = (float)p[enemies[i].currentSegment].x;
+            float y1 = (float)p[enemies[i].currentSegment].y;
+            float x2 = (float)p[enemies[i].currentSegment + 1].x;
+            float y2 = (float)p[enemies[i].currentSegment + 1].y;
             enemies[i].x = lerp(x1, x2, enemies[i].segmentProgress);
             enemies[i].y = lerp(y1, y2, enemies[i].segmentProgress);
             float baseAngle = atan2f(y2 - y1, x2 - x1) * 180.0f / M_PI - 90.0f;
             enemies[i].angle = baseAngle;
-            if ((enemies[i].currentSegment == pathCount - 2 && enemies[i].segmentProgress >= 1.0f) ||
-                (enemies[i].currentSegment >= pathCount - 1)) {
-                if (enemies[i].side == 0) {
+            if ((enemies[i].currentSegment == pathCount - 2 && enemies[i].segmentProgress >= 1.0f) || (enemies[i].currentSegment >= pathCount - 1)) {
+                if (enemies[i].side == 0)
                     *leftPlayerHP -= enemies[i].hp;
-                } else {
+                else
                     *rightPlayerHP -= enemies[i].hp;
-                }
                 enemies[i].active = false;
             }
         }
@@ -65,6 +58,7 @@ void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt,
         }
     }
 }
+
 
 void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt) {
     for (int i = 0; i < *numProjectiles; i++) {

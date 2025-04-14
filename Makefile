@@ -21,7 +21,7 @@ endif
 # Plats för källkoden
 
 # Objektfiler som ska byggas
-OBJS   = main.o engine.o gameLogic.o input.o render.o
+OBJS   = main.o engine.o gameLogic.o input.o render.o paths.o
 
 # Målnamn (produkten)
 TARGET = projektTest

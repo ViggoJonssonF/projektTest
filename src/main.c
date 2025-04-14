@@ -7,46 +7,11 @@
 #include <SDL_ttf.h>
 #include "defs.h"
 #include "engine.h"
+#include "paths.h"
 
 int main(int argc, char **argv) {
     // Definiera banpunkter för fiender
-    static SDL_Point pathPointsLeft[] = {
-        { (int)(WINDOW_WIDTH / 3.84), 0 },
-        { (int)(WINDOW_WIDTH / 3.84), (int)(WINDOW_HEIGHT * 0.09) },
-        { (int)(WINDOW_WIDTH / 10.67), (int)(WINDOW_HEIGHT * 0.09) },
-        { (int)(WINDOW_WIDTH / 10.67), (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 6.857), (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 2.341), (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 2.341), (int)(WINDOW_HEIGHT * 0.35) },
-        { (int)(WINDOW_WIDTH / 3.2),   (int)(WINDOW_HEIGHT * 0.35) },
-        { (int)(WINDOW_WIDTH / 3.2),   (int)(WINDOW_HEIGHT * 0.61) },
-        { (int)(WINDOW_WIDTH / 2.526), (int)(WINDOW_HEIGHT * 0.61) },
-        { (int)(WINDOW_WIDTH / 2.526), (int)(WINDOW_HEIGHT * 0.90) },
-        { (int)(WINDOW_WIDTH / 13.714),(int)(WINDOW_HEIGHT * 0.90) },
-        { (int)(WINDOW_WIDTH / 13.714),(int)(WINDOW_HEIGHT * 0.65) },
-        { (int)(WINDOW_WIDTH / 4.364), (int)(WINDOW_HEIGHT * 0.65) },
-        { (int)(WINDOW_WIDTH / 4.364), WINDOW_HEIGHT }
-    };
-    
-    static SDL_Point pathPointsRight[] = {
-        { (int)(WINDOW_WIDTH / 1.352), 0 },
-        { (int)(WINDOW_WIDTH / 1.352), (int)(WINDOW_HEIGHT * 0.09) },
-        { (int)(WINDOW_WIDTH / 1.103), (int)(WINDOW_HEIGHT * 0.09) },
-        { (int)(WINDOW_WIDTH / 1.103), (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 1.170), (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 1.745), (int)(WINDOW_HEIGHT * 0.20) },
-        { (int)(WINDOW_WIDTH / 1.745), (int)(WINDOW_HEIGHT * 0.35) },
-        { (int)(WINDOW_WIDTH / 1.455), (int)(WINDOW_HEIGHT * 0.35) },
-        { (int)(WINDOW_WIDTH / 1.455), (int)(WINDOW_HEIGHT * 0.61) },
-        { (int)(WINDOW_WIDTH / 1.655), (int)(WINDOW_HEIGHT * 0.61) },
-        { (int)(WINDOW_WIDTH / 1.655), (int)(WINDOW_HEIGHT * 0.90) },
-        { (int)(WINDOW_WIDTH / 1.078), (int)(WINDOW_HEIGHT * 0.90) },
-        { (int)(WINDOW_WIDTH / 1.078), (int)(WINDOW_HEIGHT * 0.65) },
-        { (int)(WINDOW_WIDTH / 1.297), (int)(WINDOW_HEIGHT * 0.65) },
-        { (int)(WINDOW_WIDTH / 1.297), WINDOW_HEIGHT }
-    };
-    
-    int numPoints = sizeof(pathPointsLeft) / sizeof(pathPointsLeft[0]);
+    Paths paths = createPaths();
     
     SDL_Window  *window = NULL;
     SDL_Renderer *renderer = NULL;
@@ -262,8 +227,8 @@ int main(int argc, char **argv) {
                 leftEnemy.currentSegment = 0;
                 leftEnemy.segmentProgress = 0.0f;
                 leftEnemy.active = true;
-                leftEnemy.x = (float)pathPointsLeft[0].x;
-                leftEnemy.y = (float)pathPointsLeft[0].y;
+                leftEnemy.x = paths.points.left[0].x;
+                leftEnemy.y = paths.points.left[0].y;
                 leftEnemy.type = type;
                 if (type == 0) {
                     leftEnemy.hp = 1;
@@ -284,8 +249,8 @@ int main(int argc, char **argv) {
                 rightEnemy.currentSegment = 0;
                 rightEnemy.segmentProgress = 0.0f;
                 rightEnemy.active = true;
-                rightEnemy.x = (float)pathPointsRight[0].x;
-                rightEnemy.y = (float)pathPointsRight[0].y;
+                rightEnemy.x = paths.points.right[0].x;
+                rightEnemy.y = paths.points.right[0].y;
                 rightEnemy.type = type;
                 if (type == 0) {
                     rightEnemy.hp = 1;
@@ -301,7 +266,7 @@ int main(int argc, char **argv) {
             }
         }
         
-        updateEnemies(enemies, &numEnemiesActive, dt, pathPointsLeft, pathPointsRight, numPoints, enemyTextures, &leftPlayerHP, &rightPlayerHP);
+        updateEnemies(enemies, &numEnemiesActive, dt, &paths, enemyTextures, &leftPlayerHP, &rightPlayerHP);
         updateProjectiles(projectiles, &numProjectiles, dt);
         updateBirds(placedBirds, numPlacedBirds, enemies, numEnemiesActive, projectiles, &numProjectiles, dt, enemyTextures);
         calculateBirdRotations(placedBirds, numPlacedBirds, enemies, numEnemiesActive, birdRotations);
