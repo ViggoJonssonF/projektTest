@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    // Skapa tre Bird-prototyper (tornsalternativ) med attack-animationer
+    // Skapa tre birds (tornsalternativ) med attack animation
     Bird superbird1;
     superbird1.damage = 1;
     superbird1.range = WINDOW_WIDTH * 0.1f;

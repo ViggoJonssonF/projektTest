@@ -7,9 +7,7 @@
 #include <stdbool.h>
 #include <SDL_ttf.h>
 #include "paths.h"
-// -------------------------
-// Typdefinitioner för spelet
-// -------------------------
+
 typedef struct {
     int damage;
     float range;
@@ -48,16 +46,14 @@ typedef struct {
     float startY;
 } Projectile;
 
-// Struktur för tornsalternativ
+// Struct för tornsalternativ
 typedef struct {
     Bird prototype;         // Egenskaper för tornet
     SDL_Texture *iconTexture; // Ikon för att välja tornet
     SDL_Rect iconRect;        // Position och storlek för ikonen
 } TowerOption;
 
-// -------------------------
 // Deklarationer för SDL- och ljudfunktioner
-// -------------------------
 bool initSDL(SDL_Window **window, SDL_Renderer **renderer, int windowWidth, int windowHeight);
 SDL_Texture* loadTexture(SDL_Renderer *renderer, const char *path);
 SDL_Texture* loadImage(SDL_Renderer *renderer, const char *path);
@@ -66,24 +62,17 @@ bool initAudio();
 void playPopSound();
 void cleanupAudio();
 
-// -------------------------
 // Deklarationer för inputhantering
-// -------------------------
-void handleInputMulti(bool *quit, bool *placingBird, SDL_Rect iconRects[], int numIcons,
-                      int *selectedOption, int *money, int *numPlacedBirds, Bird towerOptions[], Bird placedBirds[]);
+void handleInputMulti(bool *quit, bool *placingBird, SDL_Rect iconRects[], int numIcons,int *selectedOption, int *money, int *numPlacedBirds, Bird towerOptions[], Bird placedBirds[]);
 
-// -------------------------
 // Deklarationer för uppdateringsfunktioner (game logic)
-// -------------------------
 void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, Paths *paths, SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP);
 void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt);
 void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, 
                  Projectile projectiles[], int *numProjectiles, float dt, SDL_Texture *enemyTextures[]);
 void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, float birdRotations[]);
 
-// -------------------------
 // Deklarationer för renderingsfunktioner
-// -------------------------
 void renderMap(SDL_Renderer *renderer, SDL_Texture *mapTexture, SDL_Rect mapRect);
 void renderEnemies(SDL_Renderer *renderer, Enemy enemies[], int numEnemiesActive, SDL_Rect baseEnemyRect);
 void renderProjectiles(SDL_Renderer *renderer, Projectile projectiles[], int numProjectiles);
