@@ -24,7 +24,6 @@ void renderProjectiles(SDL_Renderer *renderer, Projectile projectiles[], int num
         SDL_Rect dRect;
         SDL_QueryTexture(projectiles[i].texture, NULL, NULL, &dRect.w, &dRect.h);
 
-        
         dRect.x = (int)(projectiles[i].x - dRect.w / 2);
         dRect.y = (int)(projectiles[i].y - dRect.h / 2);
         SDL_Point dPivot = { dRect.w / 2, dRect.h / 2 };
@@ -38,7 +37,7 @@ void renderBirds(SDL_Renderer *renderer, Bird placedBirds[], int numPlacedBirds,
         if (!birdTexture) continue;
         SDL_Rect br;
         SDL_QueryTexture(birdTexture, NULL, NULL, &br.w, &br.h);
-        br.w /= (WINDOW_WIDTH * 0.001042);
+        br.w /= (WINDOW_WIDTH * 0.001);
         br.h /= (WINDOW_HEIGHT * 0.002);
         br.x = (int)(placedBirds[i].x - br.w / 2);
         br.y = (int)(placedBirds[i].y - br.h / 2);
@@ -66,7 +65,7 @@ void renderUI(SDL_Renderer *renderer, TTF_Font *font, int money, int leftPlayerH
         }
     }
     int hpBarXOffset = 50;
-    int hpBarWidth = (int)(windowWidth * 0.10416667);
+    int hpBarWidth = (int)(windowWidth * 0.1);
     int hpBarHeight = (int)(WINDOW_HEIGHT * 0.02);
     SDL_Rect leftBarOutline = {hpBarXOffset, uiY, hpBarWidth, hpBarHeight};
     float leftFillWidth = hpBarWidth * (leftPlayerHP / 10.0f);

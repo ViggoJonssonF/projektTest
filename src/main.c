@@ -208,14 +208,14 @@ int main(int argc, char **argv) {
         lastTime = currentTime;
         
         moneyTimer += dt;
-        if (moneyTimer >= 10.0f) {
-            moneyTimer -= 10.0f;
-            money += 150;
+        if (moneyTimer >= 10.0f) { //tids intervall för nya pengar att adderas
+            moneyTimer = 0.0f;
+            money += 150;  //hur mycket pengar som adderas varje gång
         }
         
         spawnTimer += dt;
-        if (spawnTimer >= 5.0f) {
-            spawnTimer -= 5.0f;
+        if (spawnTimer >= 1.0f) {  //intervall mellan enemies
+            spawnTimer = 0;
             if (numEnemiesActive <= MAX_ENEMIES - 2) {
                 int type = enemySpawnCounter % 3;
                 enemySpawnCounter++;
@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
                 } else if (type == 1) {
                     leftEnemy.hp = 3;
                     leftEnemy.texture = enemyTextures[1];
-                } else {
+                } else if (type ==2){
                     leftEnemy.hp = 5;
                     leftEnemy.texture = enemyTextures[2];
                 }
@@ -315,7 +315,7 @@ int main(int argc, char **argv) {
                 }
             }
             SDL_RenderPresent(renderer);
-            SDL_Delay(3000);
+            SDL_Delay(6000); //tid innan programmet stängs ner efter förlust
             break;
         }
     }

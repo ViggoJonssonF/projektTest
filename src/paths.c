@@ -2,7 +2,7 @@
 Paths createPaths(void) {
     Paths p;
     p.nmbrOfPoints = NUM_POINTS;
-    p.points.left[0]  = (SDL_Point){ (int)(WINDOW_WIDTH / 3.84), 0 };
+    p.points.left[0]  = (SDL_Point){ (int)(WINDOW_WIDTH / 3.84), 0 };  //motsvarar ungefär (260px,0px) vid width = 1920 
     p.points.left[1]  = (SDL_Point){ (int)(WINDOW_WIDTH / 3.84), (int)(WINDOW_HEIGHT * 0.09) };
     p.points.left[2]  = (SDL_Point){ (int)(WINDOW_WIDTH / 10.67), (int)(WINDOW_HEIGHT * 0.09) };
     p.points.left[3]  = (SDL_Point){ (int)(WINDOW_WIDTH / 10.67), (int)(WINDOW_HEIGHT * 0.20) };

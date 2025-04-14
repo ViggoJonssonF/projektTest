@@ -16,10 +16,10 @@ typedef struct {
     float attackTimer;
     int cost;
     SDL_Texture *projectileTexture;
-    SDL_Texture *texture;      // Aktuell textur (kan ändras vid attack)
-    SDL_Texture *baseTexture;  // Normal (base) textur
-    SDL_Texture *attackTexture;// Attackversionens textur
-    float attackAnimTimer;     // Timer för hur länge attackbilden visas
+    SDL_Texture *texture;      // aktuell textur (kan ändras vid attack)
+    SDL_Texture *baseTexture;  // normal (base) textur
+    SDL_Texture *attackTexture;// attackversionens textur
+    float attackAnimTimer;     // timer för hur länge attackbilden visas
 } Bird;
 
 typedef struct {
@@ -29,10 +29,10 @@ typedef struct {
     int currentSegment;    
     float segmentProgress; 
     SDL_Texture *texture;  
-    int type;              
-    bool active;
-    int side;              
-    float angle;           
+    int type;       // typ av orm/fiende       
+    bool active; // blir false då den försvinner
+    int side;   // left/right
+    float angle;  // vinkel för att "titta" mot hållet den färdas      
 } Enemy;
 
 typedef struct {
@@ -46,14 +46,14 @@ typedef struct {
     float startY;
 } Projectile;
 
-// Struct för tornsalternativ
+// struct för tornsalternativ
 typedef struct {
-    Bird prototype;         // Egenskaper för tornet
-    SDL_Texture *iconTexture; // Ikon för att välja tornet
-    SDL_Rect iconRect;        // Position och storlek för ikonen
+    Bird prototype;         // egenskaper för tornet
+    SDL_Texture *iconTexture; // ikon för att välja tornet
+    SDL_Rect iconRect;        // position och storlek för ikonen
 } TowerOption;
 
-// Deklarationer för SDL- och ljudfunktioner
+// deklarationer för SDL och ljudfunktioner
 bool initSDL(SDL_Window **window, SDL_Renderer **renderer, int windowWidth, int windowHeight);
 SDL_Texture* loadTexture(SDL_Renderer *renderer, const char *path);
 SDL_Texture* loadImage(SDL_Renderer *renderer, const char *path);
@@ -62,17 +62,17 @@ bool initAudio();
 void playPopSound();
 void cleanupAudio();
 
-// Deklarationer för inputhantering
+// deklarationer för inputhantering
 void handleInputMulti(bool *quit, bool *placingBird, SDL_Rect iconRects[], int numIcons,int *selectedOption, int *money, int *numPlacedBirds, Bird towerOptions[], Bird placedBirds[]);
 
-// Deklarationer för uppdateringsfunktioner (game logic)
+// deklarationer för uppdateringsfunktioner (game logic)
 void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, Paths *paths, SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP);
 void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt);
 void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, 
                  Projectile projectiles[], int *numProjectiles, float dt, SDL_Texture *enemyTextures[]);
 void calculateBirdRotations(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, float birdRotations[]);
 
-// Deklarationer för renderingsfunktioner
+// deklarationer för renderingsfunktioner
 void renderMap(SDL_Renderer *renderer, SDL_Texture *mapTexture, SDL_Rect mapRect);
 void renderEnemies(SDL_Renderer *renderer, Enemy enemies[], int numEnemiesActive, SDL_Rect baseEnemyRect);
 void renderProjectiles(SDL_Renderer *renderer, Projectile projectiles[], int numProjectiles);

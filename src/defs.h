@@ -1,8 +1,8 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1000
+#define WINDOW_WIDTH 1700
+#define WINDOW_HEIGHT 900
 #define MAX_ENEMIES 100
 #define MAX_PLACED_BIRDS 20
 #define MAX_PROJECTILES 100
