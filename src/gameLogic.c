@@ -11,8 +11,8 @@ static float distanceBetween(int x1, int y1, int x2, int y2) {
     return sqrtf(dx * dx + dy * dy);
 }
 
-static float lerp(float a, float b, float t) {
-    return a + (b - a) * t;
+static float newCords(float a, float b, float t) {  //positionen på nya x och y värden för enemies som skalas av moveAmount
+    return a + (b - a) * t; 
 }
 
 void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, Paths *paths, SDL_Texture *enemyTextures[], int *leftPlayerHP, int *rightPlayerHP) {
@@ -23,19 +23,18 @@ void updateEnemies(Enemy enemies[], int *numEnemiesActive, float dt, Paths *path
         int pathCount = paths->nmbrOfPoints;
         if (pathCount > 1 && enemies[i].currentSegment < pathCount - 1) {
             float segDist = distanceBetween(p[enemies[i].currentSegment].x, p[enemies[i].currentSegment].y, p[enemies[i].currentSegment + 1].x, p[enemies[i].currentSegment + 1].y);
-            float moveAmount = (enemies[i].speed * dt) / segDist;
+            float moveAmount = (enemies[i].speed * dt) / segDist; //hur långt vi kommit 0.0-1.0 i current segment. används för att skala med hjälp av newCords
             enemies[i].segmentProgress += moveAmount;
-            while (enemies[i].segmentProgress >= 1.0f && enemies[i].currentSegment < pathCount - 2) {
-                enemies[i].segmentProgress -= 1.0f;
+            if (enemies[i].segmentProgress >= 1.0f && enemies[i].currentSegment < pathCount - 2) {
+                enemies[i].segmentProgress = 0.0; //resetat progress vid start av ny segment
                 enemies[i].currentSegment++;
-                segDist = distanceBetween(p[enemies[i].currentSegment].x, p[enemies[i].currentSegment].y, p[enemies[i].currentSegment + 1].x, p[enemies[i].currentSegment + 1].y);
             }
             float x1 = (float)p[enemies[i].currentSegment].x;
             float y1 = (float)p[enemies[i].currentSegment].y;
             float x2 = (float)p[enemies[i].currentSegment + 1].x;
             float y2 = (float)p[enemies[i].currentSegment + 1].y;
-            enemies[i].x = lerp(x1, x2, enemies[i].segmentProgress);
-            enemies[i].y = lerp(y1, y2, enemies[i].segmentProgress);
+            enemies[i].x = newCords(x1, x2, enemies[i].segmentProgress);
+            enemies[i].y = newCords(y1, y2, enemies[i].segmentProgress);
             float baseAngle = atan2f(y2 - y1, x2 - x1) * 180.0f / M_PI - 90.0f;
             enemies[i].angle = baseAngle;
             if ((enemies[i].currentSegment == pathCount - 2 && enemies[i].segmentProgress >= 1.0f) || (enemies[i].currentSegment >= pathCount - 1)) {
