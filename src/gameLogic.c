@@ -84,7 +84,7 @@ void updateProjectiles(Projectile projectiles[], int *numProjectiles, float dt) 
 void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int numEnemiesActive, Projectile projectiles[], int *numProjectiles, float dt, SDL_Texture *enemyTextures[]){
 
     for (int i = 0; i < numPlacedBirds; i++) {
-        // Uppdatera attack-animationen: om timern är aktiv, minska den och återställ texturen om tiden tagit slut.
+        // Uppdatera attack animationen: om timern är aktiv, minska den och återställ texturen om tiden tagit slut.
         if (placedBirds[i].attackAnimTimer > 0) {
             placedBirds[i].attackAnimTimer -= dt;
             if (placedBirds[i].attackAnimTimer <= 0) {
@@ -129,7 +129,7 @@ void updateBirds(Bird placedBirds[], int numPlacedBirds, Enemy enemies[], int nu
                 newProj.x = newProj.startX;
                 newProj.y = newProj.startY;
                 newProj.speed = PROJECTILE_SPEED;
-                // Använd fågelns egna projectileTexture istället för dartTexture
+                // Använd fågelns egna projectiletexture istället för darttexture
                 newProj.texture = placedBirds[i].projectileTexture;
                 newProj.active = true;
                 float dx = target->x - placedBirds[i].x;
